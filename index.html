@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Loopool demo</title>
+<style>
+  :root { --bg:#14171a; --card:#1d2125; --ink:#f2f0ea; --muted:#a7aba6; --accent:#7fb2ff; --line:#2c3136; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:40px 16px 56px; }
+  h1 { font-size:30px; letter-spacing:.04em; margin:0 0 6px; }
+  p.lead { color:var(--muted); margin:0 0 28px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+  a.card { display:block; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; color:var(--ink); text-decoration:none; }
+  a.card:hover { border-color:var(--accent); }
+  .card b { display:block; font-size:18px; margin-bottom:4px; }
+  .card span { color:var(--muted); font-size:14px; }
+  .card em { display:inline-block; margin-top:10px; font-style:normal; font-size:12px; color:var(--accent); }
+  .note { color:var(--muted); font-size:14px; margin-top:28px; border-top:1px solid var(--line); padding-top:16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>LOOPOOL DEMO</h1>
+  <p class="lead">A sample bar that runs entirely in your browser. Open any screen below; nothing is sent to a server, and each device keeps its own copy.</p>
+  <div class="grid">
+    <a class="card" href="app.html#play"><b>Player app</b><span>Join the queue, see the wait, get called, check in, ratings, bars and events.</span><em>Best on a phone</em></a>
+    <a class="card" href="app.html#mobile&amp;bar=home"><b>Join from the bar's QR code</b><span>What a player sees after scanning the code on the bar TV.</span><em>Best on a phone</em></a>
+    <a class="card" href="app.html#bar"><b>Bar app</b><span>For owners and staff: start the night, run the tables, events, camera set-up.</span><em>Best on a tablet</em></a>
+    <a class="card" href="app.html#tv"><b>Bar TV</b><span>The screen above the bar: the live game, each shot's call, tonight's ratings.</span><em>Best on a big screen</em></a>
+  </div>
+  <p class="note">Sample players finish their games within a few minutes, so the queue moves on its own. The AI referee, shot scoring, emails and profile auto-fill need the real server and say so here.</p>
+</main>
+</body>
+</html>
