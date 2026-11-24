@@ -76,7 +76,8 @@ body[data-app="player"] main { padding-bottom: 0; }
 .hdr { display: flex; align-items: center; gap: var(--s-2); min-height: 56px; padding-block: var(--s-2); }
 .hdr .mark { display: flex; align-items: center; gap: var(--s-2); margin-right: auto; min-width: 0; color: var(--brass); }
 .hdr .mark b { font: 800 var(--t-lg)/1 var(--f-sign); letter-spacing: .05em; text-transform: uppercase; color: var(--chalk); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.icobtn { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-2); background: transparent; color: var(--chalk); font: 600 var(--t-sm)/1 var(--f-body); }
+.markbtn { margin: 0; padding: 0; border: 0; background: none; text-align: left; }
+.icobtn { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-2); background: transparent; color: var(--chalk); font: 600 var(--t-sm)/1 var(--f-body); }
 .icobtn:hover { border-color: var(--line-3); }
 .chip { flex: 0 1 auto; display: inline-flex; align-items: center; gap: var(--s-2); min-height: 32px; min-width: 0; padding: 0 var(--s-3); border-radius: 16px; border: 1px solid var(--line); background: transparent; color: var(--dim); font: 500 var(--t-xs)/1.2 var(--f-body); text-align: left; }
 .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -88,7 +89,7 @@ body[data-app="player"] main { padding-bottom: 0; }
 .chip u { flex: none; text-underline-offset: 3px; font-weight: 600; }
 
 /* buttons */
-.b { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 40px; padding: 0 var(--s-3); border-radius: var(--r-1); border: 1px solid var(--line-2); background: transparent; color: var(--chalk); font-weight: 600; font-size: var(--t-sm); text-decoration: none; }
+.b { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-3); border-radius: var(--r-1); border: 1px solid var(--line-2); background: transparent; color: var(--chalk); font-weight: 600; font-size: var(--t-sm); text-decoration: none; }
 .b:hover { border-color: var(--line-3); }
 .b:disabled { opacity: .4; cursor: not-allowed; }
 .b.go { background: var(--blue); border-color: var(--blue); color: var(--blue-ink); }
@@ -101,6 +102,7 @@ body[data-app="player"] main { padding-bottom: 0; }
 .cta:disabled { opacity: .45; cursor: not-allowed; }
 .quiet { display: flex; align-items: center; justify-content: center; gap: var(--s-2); width: 100%; min-height: 48px; padding: 0 var(--s-3); border-radius: var(--r-2); border: 1px solid var(--line-2); background: transparent; color: var(--chalk); font-weight: 600; font-size: var(--t-sm); }
 .quiet:disabled { opacity: .4; cursor: not-allowed; }
+.quiet[data-main-action="true"] { border-color: var(--blue); color: var(--blue-text); background: color-mix(in srgb, var(--blue) 8%, transparent); }
 .quiet.dangerq { color: var(--foul); border-color: var(--foul-line); }
 .backbtn { align-self: flex-start; display: inline-flex; align-items: center; gap: var(--s-1); min-height: 44px; padding: 0 var(--s-3) 0 var(--s-1); margin-left: calc(-1 * var(--s-2)); border: 0; background: none; color: var(--blue-text); font-weight: 600; font-size: var(--t-sm); }
 .linkbtn { align-self: center; min-height: 44px; border: 0; background: none; color: var(--blue-text); font-weight: 600; font-size: var(--t-sm); text-decoration: underline; text-underline-offset: 3px; }
@@ -109,11 +111,54 @@ body[data-app="player"] main { padding-bottom: 0; }
 [data-home] .two .quiet { padding-inline: var(--s-2); font-size: var(--t-xs); white-space: nowrap; }
 .badge { display: inline-block; padding: 1px var(--s-2); border-radius: var(--s-1); background: var(--board-3); color: var(--brass); font: 600 var(--t-xs)/1.5 var(--f-body); vertical-align: 1px; }
 
+/* shared glanceable controls */
+.schip { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 28px; max-width: 100%; padding: 3px var(--s-2); border-radius: 99px; border: 1px solid transparent; background: var(--board-3); color: var(--dim); font: 600 var(--t-xs)/1.2 var(--f-body); vertical-align: middle; }
+.schip svg { width: 16px; height: 16px; }
+.schip > span { min-width: 0; }
+.schip.k-free, .schip.k-done { color: var(--good); }
+.schip.k-wait, .schip.k-checkin, .schip.k-called, .schip.k-next, .schip.k-needs, .schip.k-confirm { color: var(--brass); }
+.schip.k-alert, .schip.k-staff, .schip.k-foul, .schip.k-review { color: var(--foul); border-color: var(--foul-line); }
+.cring { --ring-size: 28px; --ring-stroke: var(--brass); --ring-track: var(--line); position: relative; flex: none; display: inline-grid; place-items: center; width: var(--ring-size); height: var(--ring-size); border-radius: 50%; color: var(--ring-stroke); vertical-align: middle; }
+.cring.lg { --ring-size: 72px; }
+.cring.xl { --ring-size: 56px; }
+.cring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.cring circle { fill: none; stroke-width: 3; }
+.cring .cring-track { stroke: var(--ring-track); }
+.cring .cring-value { stroke: currentColor; }
+.cring b { position: relative; font: 800 11px/1 var(--f-sign); color: currentColor; }
+.cring.lg b, .cring.xl b { font-size: var(--t-lg); }
+.called .cring { --ring-stroke: #fff; --ring-track: rgba(255,255,255,.25); }
+.ptrack { display: flex; align-items: center; gap: 7px; min-height: 18px; color: var(--ticket-ink); }
+.ptrack i { width: 10px; height: 10px; border-radius: 50%; background: currentColor; opacity: .4; }
+.ptrack b { width: 14px; height: 14px; border: 3px solid currentColor; border-radius: 50%; }
+.ptrack span { font-size: var(--t-xs); font-weight: 600; }
+.pchip { display: inline-flex; align-items: center; flex-wrap: wrap; gap: var(--s-1) var(--s-2); min-height: 44px; min-width: 0; color: var(--dim); }
+.pchip b { color: var(--chalk); }
+.pchip.k-foul { color: var(--foul); }
+.pchip.k-clean, .pchip.k-done { color: var(--good); }
+.actbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+.actbar .quiet { flex-direction: column; gap: 2px; min-height: 56px; padding: var(--s-1); font-size: var(--t-xs); line-height: 1.2; }
+.actbar .quiet:active { background: var(--board-3); }
+.queue-leave { min-height: 44px; border-color: transparent; color: var(--dim); }
+.ticket .schip { align-self: flex-start; background: rgba(42, 29, 5, .12); color: var(--ticket-ink); }
+.ticket .ptrack { margin-top: var(--s-2); }
+.seg.s3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.seg.s4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.joinbox .seg button { height: 56px; display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); }
+.nightsw { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; padding: 0 var(--s-3); border-radius: 99px; border: 1px solid var(--line-3); background: transparent; color: var(--dim); font: 600 var(--t-xs) var(--f-body); white-space: nowrap; }
+.nightsw[aria-checked="true"] { border-color: var(--good); color: var(--good); }
+.nightsw .swtrack { position: relative; width: 34px; height: 20px; border-radius: 10px; background: var(--board-3); }
+.nightsw .swtrack::after { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: currentColor; transition: transform .15s; }
+.nightsw[aria-checked="true"] .swtrack::after { transform: translateX(14px); }
+.nbadge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--foul); color: var(--foul-ink); font: 700 var(--t-xs)/1 var(--f-body); }
+
 /* first visit: who is using this screen */
 .start { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--s-3); padding-bottom: var(--s-8); }
 .start h1 { font: 600 var(--t-lg)/1.2 var(--f-body); margin: var(--s-4) 0 var(--s-1); }
-.start-pick { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-1); width: 100%; padding: var(--s-4) var(--s-5); border-radius: var(--r-3); border: 1px solid var(--line-2); background: var(--board-2); color: var(--chalk); text-align: left; text-decoration: none; }
+.start-pick { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; column-gap: var(--s-3); row-gap: var(--s-1); width: 100%; padding: var(--s-4) var(--s-5); border-radius: var(--r-3); border: 1px solid var(--line-2); background: var(--board-2); color: var(--chalk); text-align: left; text-decoration: none; }
 .start-pick:hover { border-color: var(--blue); }
+.start-pick > svg { grid-column: 1; grid-row: 1 / 3; width: 40px; height: 40px; }
+.start-pick b, .start-pick small { grid-column: 2; }
 .start-pick b { font: 800 var(--t-xl)/1 var(--f-sign); letter-spacing: .03em; text-transform: uppercase; }
 .start-pick small { font-size: var(--t-sm); color: var(--dim); }
 
@@ -155,6 +200,8 @@ body[data-app="player"] main { padding-bottom: 0; }
 .board li.done > span { color: var(--slate-dim); }
 .board li.me > span { text-decoration: underline; text-decoration-color: var(--slate-you); text-decoration-thickness: 3px; text-underline-offset: 5px; }
 .board li.me small, .board li.done small { color: var(--slate-you); }
+.board-when { display: inline-flex; align-items: center; gap: var(--s-1); font: 600 var(--t-xs)/1.2 var(--f-body); }
+.board-when .schip { color: var(--brass); }
 .board .empty { font: var(--t-lg) var(--f-chalk); color: var(--slate-dim); }
 .board .more { font: 500 var(--t-xs) var(--f-body); color: var(--slate-dim); }
 
@@ -162,10 +209,12 @@ body[data-app="player"] main { padding-bottom: 0; }
 .called { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-5); border: 6px solid var(--rail); border-radius: var(--r-3); background: var(--felt); color: #fff; }
 .called .label { color: var(--felt-ink); font-size: var(--t-sm); }
 .called .big { font: 800 var(--t-3xl)/.9 var(--f-sign); text-transform: uppercase; }
-.called .count { display: flex; align-items: baseline; gap: var(--s-2); }
-.called .count b { font: 800 var(--t-2xl)/1 var(--f-sign); }
-.called .count span { font-size: var(--t-sm); color: var(--felt-ink); }
+.called.hurry { border-color: var(--ticket); }
+.called .count { display: flex; align-items: center; gap: var(--s-3); }
+.called .count > span:last-child { font-size: var(--t-sm); color: var(--felt-ink); }
+.called > .schip { align-self: flex-start; background: var(--ticket); color: var(--ticket-ink); border-color: var(--ticket); }
 .called .cta { margin-top: var(--s-2); background: #fff; color: #10301f; }
+.seated-wait { display: flex; align-items: center; gap: var(--s-2); }
 .floor { position: relative; height: 112px; border-radius: var(--r-2); background: var(--board-2); border: 1px solid var(--line); }
 .floor .counter { position: absolute; left: var(--s-3); right: var(--s-3); top: var(--s-2); height: 18px; border-radius: 3px; background: var(--board-3); font: 600 var(--t-xs)/18px var(--f-body); color: var(--dim); text-align: center; }
 .ft { position: absolute; width: calc(50% - 20px); height: 32px; border-radius: var(--r-1); border: 3px solid var(--rail); background: var(--felt); color: #fff; display: flex; align-items: center; gap: var(--s-2); padding: 0 var(--s-2); }
@@ -178,8 +227,10 @@ body[data-app="player"] main { padding-bottom: 0; }
 .rows { display: flex; flex-direction: column; }
 .row { display: flex; align-items: center; gap: var(--s-3); min-height: 52px; padding: var(--s-2) 0; border-bottom: 1px solid var(--line); }
 .row:last-child { border-bottom: 0; }
-.row .n { flex: none; width: 28px; font: 800 var(--t-xl)/1 var(--f-sign); color: var(--dim); }
-.row .n.free { color: var(--good); }
+.row .n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-1); background: var(--felt); color: #fff; font: 800 var(--t-lg)/1 var(--f-sign); }
+.row .n.free { color: #fff; }
+.row-main { flex: 1; min-width: 0; }
+.name-line { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-1) var(--s-2); }
 .row b { display: block; font-size: var(--t-md); font-weight: 600; }
 .row small { display: block; font-size: var(--t-xs); color: var(--dim); }
 .stats { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-6); }
@@ -202,7 +253,7 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .seg button { height: 48px; border-radius: var(--r-2); border: 2px solid var(--line-2); background: transparent; font: 800 var(--t-lg)/1 var(--f-sign); letter-spacing: .04em; text-transform: uppercase; }
 .seg button[aria-pressed="true"] { background: var(--chalk); border-color: var(--chalk); color: var(--board); }
 .switch { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-3); align-items: center; padding: var(--s-3); border-radius: var(--r-2); border: 1px solid var(--line-2); cursor: pointer; }
-.switch b { display: block; font-size: var(--t-sm); font-weight: 600; }
+.switch b { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-sm); font-weight: 600; }
 .switch small { display: block; font-size: var(--t-xs); color: var(--dim); margin-top: 2px; }
 .switch .knob { position: relative; width: 52px; height: 32px; }
 .switch input { position: absolute; inset: 0; width: 52px; height: 32px; margin: 0; opacity: 0; cursor: pointer; }
@@ -253,11 +304,6 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .meter { position: relative; height: 10px; border-radius: 5px; background: var(--board-3); }
 .meter i { display: block; height: 10px; border-radius: 5px; background: var(--foul); }
 .meter b { position: absolute; top: -4px; width: 2px; height: 18px; background: var(--chalk); }
-.vote { display: flex; flex-direction: column; gap: 2px; padding: var(--s-2) var(--s-3); border-radius: var(--r-2); border: 1px solid var(--line-2); min-width: 0; }
-.vote.wait { border-style: dashed; border-color: var(--line-3); }
-.vote b { font-size: var(--t-md); }
-.vote span { font-size: var(--t-xs); color: var(--dim); }
-.vote .yes { color: var(--good); } .vote .no { color: var(--foul); }
 .won .big { font: 800 var(--t-3xl)/.9 var(--f-sign); text-transform: uppercase; }
 .delta { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-1) var(--s-3); }
 .delta b { font: 800 var(--t-2xl)/1 var(--f-sign); color: var(--brass); }
@@ -274,7 +320,7 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .lb > div.me > span:last-child { color: inherit; }
 .youtag { display: inline-block; margin-left: var(--s-2); padding: 1px var(--s-2); border-radius: var(--s-1); background: var(--ticket); color: var(--ticket-ink); font: 600 var(--t-xs)/1.5 var(--f-body); vertical-align: 1px; }
 .watch { display: flex; flex-direction: column; gap: var(--s-2); padding: 0 var(--s-1) var(--s-6); }
-.watch .qrline, .watch .tv-top .chip, .watch .tv-top .icobtn { display: none; }   /* on the phone the TV view is only for watching */
+.watch .qrline, .watch .tv-top .chip, .watch .tv-top .icobtn, .watch .tv-change, body[data-app="biz"] .tv-change { display: none; }   /* embedded TV views already have their own way back */
 .watch .board, .watch .ratings, .watch .ticker { display: none; }   /* the waiting list is already above; the tables are what this view adds */
 .watch .tvtiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .watch .tvt { padding: var(--s-3); }
@@ -331,8 +377,10 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .bapp .hdr { flex-wrap: wrap; }
 .bapp .hdr .mark { flex: 1 1 auto; }
 .bapp .hdr .mark b { font-size: var(--t-xl); }
-.biz-pill { flex: none; font: 600 var(--t-xs) var(--f-body); padding: var(--s-1) var(--s-3); border-radius: 99px; border: 1px solid var(--line-3); color: var(--dim); white-space: nowrap; }
-.biz-pill.on { border-color: var(--good); color: var(--good); }
+.bapp-nav { display: flex; gap: var(--s-1); padding: var(--s-1); border: 1px solid var(--line); border-radius: var(--r-2); background: var(--board-2); overflow-x: auto; }
+.bapp-nav button { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); flex: 1 0 auto; min-height: 44px; padding: 0 var(--s-4); border: 0; border-radius: var(--r-1); background: transparent; color: var(--dim); font-weight: 600; white-space: nowrap; }
+.bapp-nav button[aria-current="page"] { background: var(--blue); color: var(--blue-ink); }
+.bevents-page { display: flex; flex-direction: column; gap: var(--s-4); }
 .bapp-menu { position: relative; flex: none; }
 .menu { position: absolute; right: 0; top: 48px; z-index: 9; min-width: 240px; display: flex; flex-direction: column; padding: var(--s-1); border-radius: var(--r-2); border: 1px solid var(--line-2); background: var(--board-2); box-shadow: var(--lift); }
 .menu button { min-height: 44px; padding: 0 var(--s-3); border: 0; border-radius: var(--r-1); background: none; color: var(--chalk); text-align: left; font-weight: 600; font-size: var(--t-sm); }
@@ -347,18 +395,23 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .bact .tell { flex: 1 1 200px; font-size: var(--t-md); font-weight: 600; }
 .bact .tell small { display: block; font-size: var(--t-sm); font-weight: 400; color: var(--dim); }
 .bgrid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, 1fr); gap: var(--s-5); align-items: start; }
-.tables { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.tables { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); align-items: start; }
 .tcard { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3) var(--s-4) var(--s-4); border-radius: var(--r-2); background: var(--board-2); border: 1px solid var(--line); border-top: 6px solid var(--felt); }
-.tcard.free { border-top-color: var(--line-3); }
-.tcard.staff { border-color: var(--foul); border-top-color: var(--foul); }
-.tcard .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-1) var(--s-3); }
+.tcard.k-free { border-top-color: var(--good); }
+.tcard.k-wait { border-top-color: var(--brass); }
+.tcard.k-alert, .tcard.staff { border-top-color: var(--foul); }
+.tcard.staff { border-color: var(--foul); }
+.tcard .hd { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-1) var(--s-3); }
 .tcard .hd .sign { font-size: var(--t-lg); }
-.tcard .st { font-size: var(--t-xs); font-weight: 600; }
-.st.play { color: var(--good); } .st.wait { color: var(--brass); } .st.alert { color: var(--foul); } .st.free { color: var(--dim); }
+.tcard-head .schip { flex: 0 1 auto; }
+.checkin-chip { display: inline-flex; align-items: center; gap: var(--s-1); min-width: 0; }
+.tcard-names { min-height: 27px; display: flex; align-items: center; }
 .tcard .who { font-size: var(--t-lg); font-weight: 600; line-height: 1.2; }
+.tcard .free-name { color: var(--good); }
 .tcard .meta { font-size: var(--t-xs); color: var(--dim); }
-.tcard .acts { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-1); }
-.tcard .acts .b { flex: 1 1 auto; min-height: 44px; }
+.tcard .acts { display: flex; flex-wrap: nowrap; gap: var(--s-2); margin-top: var(--s-1); }
+.tcard .acts .b { flex: 1 1 0; min-width: 0; min-height: 44px; padding-inline: var(--s-2); white-space: nowrap; }
+.tcard .acts .b + .b { flex: 0 1 auto; }
 .qside { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--s-4); min-width: 0; }
 .qside .board { flex: 1 1 240px; max-width: 380px; }
 .qside .qrline { flex: 0 1 auto; }
@@ -366,6 +419,7 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .qrbox { width: 96px; height: 96px; flex: none; border-radius: var(--r-1); background: #fff; border: 1px solid var(--line); padding: 6px; display: grid; place-items: center; line-height: 0; }
 .qrbox img { width: 84px; height: 84px; image-rendering: pixelated; }
 .qrline p { font-size: var(--t-sm); font-weight: 600; }
+.qrwait { display: block; margin-top: var(--s-1); font: 600 var(--t-sm)/1.2 var(--f-body); letter-spacing: 0; text-transform: none; }
 .qrline .b { margin-top: var(--s-2); }
 .fold { border: 1px solid var(--line); border-radius: var(--r-2); background: var(--board-2); padding: 0 var(--s-4); }
 .fold > summary { min-height: 52px; display: flex; align-items: center; gap: var(--s-2); cursor: pointer; font-weight: 600; font-size: var(--t-md); list-style: none; }
@@ -415,7 +469,9 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .bsetup, .bstart { display: flex; flex-direction: column; gap: var(--s-4); max-width: 860px; }
 .bsetup .biz-form { padding: var(--s-4) var(--s-5); }
 .autofill { border-color: var(--brass); }
-.bstart select { min-width: 200px; width: auto; }
+.biz-picker-label { font-size: var(--t-sm); font-weight: 600; }
+.bstart .seg button { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-width: 0; height: 48px; padding-inline: var(--s-2); font-size: var(--t-md); }
+.bstart .start-tables .schip { font-size: 11px; padding-inline: var(--s-1); }
 .bapp-camhd { display: flex; flex-direction: column; gap: var(--s-3); margin-bottom: var(--s-4); }
 .bapp-camhd p { margin-top: var(--s-1); max-width: 640px; }
 [data-bs].offstage { position: absolute; left: -300vw; top: 0; width: 1100px; height: 1px; overflow: hidden; }   /* the camera keeps running while the counter is on screen */
@@ -427,12 +483,14 @@ fieldset { margin: 0; padding: 0; border: 0; }
 .tv-top .sign { font-size: var(--t-xl); margin-right: auto; }
 .tv-top .clock { font: 800 var(--t-xl)/1 var(--f-sign); }
 .tv-top .chip, .tv-top .icobtn { opacity: .75; }
+.tv-change { display: inline-flex; align-items: center; gap: var(--s-1); min-height: 40px; padding: 0 var(--s-3); border: 1px solid var(--line-2); border-radius: var(--r-1); background: transparent; color: var(--dim); font-weight: 600; }
 .onair { padding: var(--s-1) var(--s-3); border-radius: var(--s-1); background: var(--foul); color: var(--foul-ink); font: 800 var(--t-lg)/1.1 var(--f-sign); letter-spacing: .06em; text-transform: uppercase; }
 .tv-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--s-5); }
 .tv-main { display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; }
-.callout { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-1) var(--s-4); padding: var(--s-3) var(--s-5); border-radius: var(--r-2); background: var(--ticket); color: var(--ticket-ink); }
-.callout b { font: 800 var(--t-2xl)/1 var(--f-sign); text-transform: uppercase; letter-spacing: .02em; }
-.callout span { font-size: var(--t-lg); font-weight: 600; }
+.callout { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-1) var(--s-4); padding: var(--s-3) var(--s-5); border-radius: var(--r-2); background: var(--ticket); color: var(--ticket-ink); }
+.callout > b { font: 800 var(--t-2xl)/1 var(--f-sign); text-transform: uppercase; letter-spacing: .02em; }
+.callout > span:not(.cring) { font-size: var(--t-lg); font-weight: 600; }
+.callout .cring { --ring-stroke: var(--ticket-ink); --ring-track: rgba(42, 29, 5, .25); }
 .tvtiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); flex: 1; }
 .tvt { --pk: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: var(--s-2); padding: var(--s-4) var(--s-5); border-radius: var(--r-3); border: 5px solid var(--rail); color: #fff; min-width: 0;
   background: radial-gradient(circle var(--pk) at 0 0, var(--pocket) 97%, transparent), radial-gradient(circle var(--pk) at 100% 0, var(--pocket) 97%, transparent), radial-gradient(circle var(--pk) at 0 100%, var(--pocket) 97%, transparent), radial-gradient(circle var(--pk) at 100% 100%, var(--pocket) 97%, transparent), radial-gradient(circle var(--pk) at 50% 0, var(--pocket) 97%, transparent), radial-gradient(circle var(--pk) at 50% 100%, var(--pocket) 97%, transparent), var(--felt); }
@@ -481,17 +539,20 @@ body.kiosk main.wrap { max-width: none; }
 .tvfit .tv-top .clock { font-size: 36px; }
 .tvfit .tv-top .chip { font-size: 19px; min-height: 40px; }
 .tvfit .tv-top .icobtn { width: 44px; height: 44px; font-size: 19px; }
+.tvfit .tv-change { min-height: 44px; font-size: 19px; }
 .tvfit .onair { font-size: 24px; }
 .tvfit .tv-grid { flex: 1; min-height: 0; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: minmax(0, 1fr); gap: 28px; }
 .tvfit .tv-main { min-height: 0; gap: 14px; }
-.tvfit .callout b { font-size: 52px; }
-.tvfit .callout span { font-size: 26px; }
+.tvfit .callout > b { font-size: 52px; }
+.tvfit .callout > span:not(.cring) { font-size: 26px; }
 .tvfit .tvtiles { min-height: 0; gap: 14px; }
 .tvfit .tvt .sign { font-size: 24px; }
 .tvfit .tvt { --pk: 17px; }
 .tvfit .tvt .who { font-size: 64px; }
 .tvfit .tvt .who.long { font-size: 48px; }
-.tvfit .tvt .who.xlong { font-size: 40px; white-space: normal; text-wrap: balance; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.tvfit .tvt .who.xlong { font-size: 40px; display: flex; flex-direction: column; align-items: stretch; white-space: normal; }
+.tvfit .tvt .who.xlong .tvname { display: block; max-width: 100%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.tvfit .tvt .who.xlong .tvvs { font: 600 20px/1 var(--f-body); color: var(--felt-ink); }
 .tvfit .tvt .meta { font-size: 24px; }
 .tvfit .score { flex: none; }
 .tvfit .score .name { font-size: 44px; }
@@ -517,6 +578,9 @@ body.kiosk main.wrap { max-width: none; }
 .tvfit .board { padding: 14px 20px 18px; gap: 8px; border-width: 6px; flex: 0 1 auto; min-height: 0; overflow: hidden; }
 .tvfit .board ol { font-size: 38px; gap: 4px; }
 .tvfit .board li small, .tvfit .board .more { font-size: 20px; }
+.tvfit .board .schip { min-height: 32px; font-size: 20px; }
+.tvfit .board .schip svg { width: 20px; height: 20px; }
+.tvfit .board .cring b { display: none; }
 .tvfit .board .empty { font-size: 30px; }
 .tvfit .shotcard .sc p, .tvfit .tvres .rs, .tvfit .ratings .rt { font-size: 20px; }
 .tvfit .ring { width: 60px; height: 60px; border-width: 4px; font-size: 26px; }
@@ -525,6 +589,7 @@ body.kiosk main.wrap { max-width: none; }
 .tvfit .aside .qrbox { flex: 1 1 0; min-height: 0; width: auto; height: auto; aspect-ratio: 1; padding: 10px; }
 .tvfit .aside .qrbox img { width: 100%; height: 100%; }
 .tvfit .aside .qrline p { flex: none; font-size: 32px; }
+.tvfit .aside .qrline .qrwait { font-size: 24px; }
 
 /* dialogs + toast */
 dialog { border: 1px solid var(--line-2); border-radius: var(--r-3); padding: 0; background: var(--board-2); color: var(--chalk); width: min(520px, calc(100vw - 32px)); box-shadow: var(--lift); }
@@ -544,6 +609,8 @@ body[data-app="player"] .toast { bottom: calc(76px + env(safe-area-inset-bottom,
 @media (max-width: 900px) { .biz-grid { grid-template-columns: minmax(0, 1fr); } .bgrid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 560px) {
   .tables, .tvtiles { grid-template-columns: minmax(0, 1fr); }
+  .bapp-nav { flex-wrap: wrap; overflow: visible; }
+  .bapp-nav button { flex: 1 1 30%; padding: 0 var(--s-2); }
   .biz-evr { flex-wrap: wrap; }   /* a phone has no room for three buttons in a row */
   .biz-form { grid-template-columns: minmax(0, 1fr); }
   .biz-hr { grid-template-columns: 80px minmax(0, 1fr) auto minmax(0, 1fr); } .biz-hr .biz-chk { grid-column: 2 / -1; }
@@ -568,16 +635,16 @@ body[data-app="player"] .toast { bottom: calc(76px + env(safe-area-inset-bottom,
     <div class="start">
       <header class="hdr"><div class="mark"><svg width="26" height="24" viewBox="0 0 26 24" aria-hidden="true"><path d="M13 2.5 24 21.5H2Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="13" cy="15" r="3.4" style="fill:var(--chalk)"/></svg><b>Loopool</b></div><span data-tools></span></header>
       <h1 data-i18n="start.who"></h1>
-      <button class="start-pick" data-act="role" data-v="player"><b data-i18n="start.play"></b><small data-i18n="start.playMore"></small></button>
-      <button class="start-pick" data-act="role" data-v="biz"><b data-i18n="start.bar"></b><small data-i18n="start.barMore"></small></button>
-      <a class="start-pick" href="#tv"><b data-i18n="start.tv"></b><small data-i18n="start.tvMore"></small></a>
+      <button class="start-pick" data-act="role" data-v="player" data-icon="cue"><b data-i18n="start.play"></b><small data-i18n="start.playMore"></small></button>
+      <button class="start-pick" data-act="role" data-v="biz" data-icon="counter"><b data-i18n="start.bar"></b><small data-i18n="start.barMore"></small></button>
+      <a class="start-pick" href="#tv" data-icon="tv"><b data-i18n="start.tv"></b><small data-i18n="start.tvMore"></small></a>
     </div>
   </section>
 
   <!-- Player app (phone): Home (your place in line, or the bar to join), Bars, Ranks, Me -->
   <section class="view" id="v-player" data-i18n-aria="p.aria">
     <div class="papp">
-      <header class="hdr"><div class="mark"><svg width="26" height="24" viewBox="0 0 26 24" aria-hidden="true"><path d="M13 2.5 24 21.5H2Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="13" cy="15" r="3.4" style="fill:var(--chalk)"/></svg><b>Loopool</b></div><span data-tools></span></header>
+      <header class="hdr"><button class="mark markbtn" data-act="rolehome" data-i18n-aria="start.change"><svg width="26" height="24" viewBox="0 0 26 24" aria-hidden="true"><path d="M13 2.5 24 21.5H2Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="13" cy="15" r="3.4" style="fill:var(--chalk)"/></svg><b>Loopool</b></button><span data-tools></span></header>
       <div class="papp-body">
         <div data-pt="home"><div data-invite></div><div data-home></div><div class="ph" data-phone hidden></div><div class="watch" data-watch hidden><div data-tv></div></div></div>
         <div data-pt="bars" hidden></div>
@@ -598,24 +665,30 @@ body[data-app="player"] .toast { bottom: calc(76px + env(safe-area-inset-bottom,
   <!-- Bar app (counter tablet): tonight's tables and queue; set-up, start a game, the camera and the TV view are one tap away -->
   <section class="view" id="v-biz" data-i18n-aria="bar.aria">
     <div class="bapp">
-      <header class="hdr"><div class="mark"><b data-bname></b></div><span data-bchip></span><span data-tools></span>
+      <header class="hdr"><button class="mark markbtn" data-act="rolehome" data-i18n-aria="start.change"><b data-bname></b></button><span data-bchip></span><span data-tools></span>
         <div class="bapp-menu"><button class="icobtn" data-act="bmenu" data-i18n-aria="bar.menu" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
           <div class="menu" data-bmenu hidden>
-            <button data-act="bm-edit" data-i18n="bar.menuEdit"></button>
             <button data-act="bm-player" data-i18n="bar.menuPlayer"></button>
             <button data-act="bm-delete" class="danger" data-i18n="bar.menuDelete"></button>
           </div></div></header>
+      <nav class="bapp-nav" data-bnav data-i18n-aria="bar.nav" hidden>
+        <button data-act="biz-nav" data-v="home" data-icon="table" data-i18n="bar.navHome"></button>
+        <button data-act="biz-nav" data-v="start" data-icon="start" data-i18n="bar.start"></button>
+        <button data-act="biz-nav" data-v="events" data-icon="calendar" data-i18n="bar.events"></button>
+        <button data-act="biz-nav" data-v="camera" data-icon="camera" data-i18n="bar.navCamera"></button>
+        <button data-act="biz-nav" data-v="setup" data-icon="store" data-i18n="bar.navSetup"></button>
+      </nav>
       <div data-bs="setup" hidden></div>
       <div data-bs="home" hidden>
         <div class="bhome">
           <div class="needs" data-bneeds></div>
           <div class="bact" data-bact></div>
           <div data-venue></div>
-          <details class="fold"><summary><span data-i18n="bar.events"></span><span class="dim" data-evcount></span></summary><div data-bevents></div></details>
           <details class="fold"><summary data-i18n="bar.log"></summary><div data-blog></div></details>
         </div>
       </div>
       <div data-bs="start" hidden></div>
+      <div data-bs="events" hidden></div>
       <div data-bs="camera" hidden><div class="bapp-camhd" data-camhd></div><div data-camera></div></div>
       <div data-bs="tv" hidden><button class="tv-exit" data-act="biz-tvexit" data-i18n="bar.tvExit"></button><div data-tv></div></div>
     </div>
@@ -1638,11 +1711,18 @@ addStrings({
   'save.offline': 'Offline since {time}', 'save.offlineNow': 'Offline', 'save.offlineMore': 'The bar can\'t be reached, so the board on screen may be out of date. It keeps trying by itself.',
   'save.retry': 'Retry', 'net.retrying': 'Can\'t reach the bar. Trying again…',
   'table.n': 'Table {n}', 'table.aria': 'The pool table seen from above',
+  'ring.left': '{n} minutes left to check in', 'ring.left_1': '1 minute left to check in', 'ring.leftSec': '{n} seconds left to check in',
+  'called.hurry': 'Less than a minute: go now', 'alert.title': '{table} is ready: check in',
+  'queue.stayClose': 'Next up: stay close', 'wait.waiting': '{n} people waiting', 'wait.waiting_1': '1 person waiting',
+  'board.titleN': '{title} · {n}', 'board.calledAt': '{table} · {time}',
+  'chip.free': 'Free', 'chip.playing': '{n} min', 'chip.started': 'Just started', 'chip.checkin': '{name} · {time}',
+  'chip.needs': 'Needs a challenger', 'chip.review': 'Foul check', 'chip.staff': 'Needs you', 'chip.confirm': 'Confirming', 'chip.called': 'Called',
+  'card.manageShort': 'Manage', 'card.startShort': 'New game',
   'game.8-ball': '8-ball', 'game.9-ball': '9-ball', 'game.10-ball': '10-ball', 'group.solids': 'solids', 'group.stripes': 'stripes',
   'day.mon': 'Monday', 'day.tue': 'Tuesday', 'day.wed': 'Wednesday', 'day.thu': 'Thursday', 'day.fri': 'Friday', 'day.sat': 'Saturday', 'day.sun': 'Sunday',
   'kind.tournament': 'Tournament', 'kind.league': 'League night', 'kind.social': 'Social night', 'kind.lesson': 'Lesson or coaching',
 
-  'start.aria': 'Welcome', 'start.who': 'Who is using this screen?',
+  'start.aria': 'Welcome', 'start.who': 'Who is using this screen?', 'start.change': 'Choose a different screen',
   'start.play': 'I\'m here to play', 'start.playMore': 'Join the queue and get called to a table',
   'start.bar': 'I work at the bar', 'start.barMore': 'Run the tables, the queue and events',
   'start.tv': 'This is the bar\'s TV', 'start.tvMore': 'Show who is playing, who is waiting and the code to join',
@@ -1701,6 +1781,7 @@ addStrings({
   'tile.needs': '{name} needs a challenger', 'tile.free': 'Free', 'tile.min': '{n} min in', 'tile.started': 'just started', 'tile.camera': 'camera referee', 'tile.checkin': 'checking in', 'tile.scan': 'scan the code to play',
 
   'bar.aria': 'Bar app', 'bar.menu': 'Menu', 'bar.menuEdit': 'Edit the bar\'s details', 'bar.menuPlayer': 'Switch to the player app', 'bar.menuDelete': 'Delete this bar', 'bar.menuBar': 'Switch to the bar app',
+  'bar.nav': 'Bar app screens', 'bar.navHome': 'Tonight', 'bar.navCamera': 'Camera', 'bar.navSetup': 'Bar details',
   'bar.events': 'Events', 'bar.log': 'Results and activity', 'bar.tvExit': 'Leave the TV view', 'bar.open': 'Start the night',
   'bar.playing': '{n} of {of} tables in play', 'bar.waiting': '{n} people waiting', 'bar.waiting_1': '1 person waiting', 'bar.noWaiting': 'nobody waiting',
   'bar.tonight': 'Tonight: {title}', 'bar.camOn': '{n} cameras on', 'bar.camOn_1': '1 camera on',
@@ -1776,6 +1857,9 @@ addStrings({
   // header and hours
   'biz.openPill': 'Open tonight',
   'biz.closedPill': 'Closed',
+  'bar.toggleOn': 'Open tonight. Tap to end the night', 'bar.toggleOff': 'Closed. Tap to start the night',
+  'bar.needsN': '{n} tables need you', 'bar.needsN_1': '1 table needs you',
+  'biz.pickTable': 'Pick a table', 'biz.pickFree': 'Free', 'biz.pickBusy': 'In play',
   'biz.openToday': 'Open today {open} to {close}',
   'biz.closedToday': 'Closed today',
   'biz.camStoppedElsewhere': 'The night was ended, so the camera on this device stopped.',
@@ -2506,8 +2590,8 @@ addStrings({
 // Flow: register the bar once (auto-filled from its website or Google Maps link, read by the bar's server) -> the bar's
 // home page (what needs staff, the tables, the queue, events: drawn by renderBarHome in app.js) -> start the night ->
 // start a game (call the next players, type two names, or use the camera) -> camera set-up -> the bar TV view (stays on
-// until staff press Exit) -> back to the home page. The menu in the header edits the bar, switches to the player app,
-// or deletes the bar.
+// until staff press Exit) -> back to the home page. Screen tabs reach tonight, games, events, the camera and bar details.
+// The menu switches to the player app or deletes the bar.
 // The profile, the open / closed state and events are saved by the same engine as the queue (venue_save, venue_open,
 // venue_delete, event_*), so every screen sees them.
 // Every word comes from the string table (strings-biz.js, keys biz.*). The set-up form and the event form are built once
@@ -2641,6 +2725,7 @@ async function bizAutofill() {
 
 
 // ---------- the bar app ----------
+function needsCount(st) { return st.tables.filter(t => t.status === 'staff').length; }
 function renderBizApp(st) {
   const v = st.venue || {}, root = $('#v-biz');
   // the night was ended on another device: the camera on this device stops too
@@ -2649,11 +2734,18 @@ function renderBizApp(st) {
   const screen = !v.setup ? 'setup' : BAPP.editing ? 'setup' : BAPP.screen;
   const tv = screen === 'tv';
   document.body.classList.toggle('kiosk', tv); document.body.classList.toggle('tvmode', tv); if (!tv) document.body.classList.remove('tvfull');
-  // the header (name, open or closed, saved or not, theme, menu) stays on every screen but the TV view
+  // the header and screen tabs stay on every screen but the TV view
   $('.hdr', root).hidden = tv;
+  const nav = $('[data-bnav]', root); nav.hidden = !v.setup || tv;
+  $$('[data-act="biz-nav"]', nav).forEach(b => b.setAttribute('aria-current', b.dataset.v === screen ? 'page' : 'false'));
+  const needed = needsCount(st), homeTab = $('[data-v="home"]', nav), homeLabel = tr('bar.navHome');
+  homeTab.setAttribute('aria-label', needed ? homeLabel + '. ' + tr('bar.needsN', { n: needed }) : homeLabel);
+  let badge = $('.nbadge', homeTab);
+  if (needed && !badge) { homeTab.insertAdjacentHTML('beforeend', '<span class="nbadge" aria-hidden="true"></span>'); badge = $('.nbadge', homeTab); }
+  if (badge) { badge.textContent = String(needed); badge.hidden = !needed; }
   const name = v.setup && v.name ? v.name : 'Loopool', bname = $('[data-bname]', root);
   if (bname.textContent !== name) bname.textContent = name;
-  const chip = !v.setup ? '' : `<span class="biz-pill${v.open ? ' on' : ''}">${trh(v.open ? 'biz.openPill' : 'biz.closedPill')}</span>`, bchip = $('[data-bchip]', root);
+  const chip = !v.setup ? '' : `<button class="nightsw" data-act="biz-opentoggle" role="switch" aria-checked="${!!v.open}" aria-label="${trh(v.open ? 'bar.toggleOn' : 'bar.toggleOff')}">${ICON.power}<span>${trh(v.open ? 'biz.openPill' : 'biz.closedPill')}</span><span class="swtrack" aria-hidden="true"></span></button>`, bchip = $('[data-bchip]', root);
   if (bchip.dataset.sig !== chip) { bchip.dataset.sig = chip; bchip.innerHTML = chip; }
   $$('[data-bs]', root).forEach(el => {
     const on = el.dataset.bs === screen;
@@ -2663,20 +2755,32 @@ function renderBizApp(st) {
   if (screen === 'setup') renderSetup($('[data-bs="setup"]', root), st);
   else if (screen === 'home') renderBizHome(root, st);
   else if (screen === 'start') renderStartGame($('[data-bs="start"]', root), st);
+  else if (screen === 'events') renderBizEventsScreen($('[data-bs="events"]', root), st);
   else if (screen === 'camera') renderCameraStep(root, st);
   else if (tv) renderTV($('[data-bs="tv"] [data-tv]', root), st, 'biztv');
 }
 
-// The home page: app.js draws what needs staff, the action row, the tables, the queue and tonight's results;
-// the events fold is drawn here.
+// The home page: app.js draws what needs staff, the action row, the tables, the queue and tonight's results.
 function renderBizHome(root, st) {
   renderBarHome(root, st, BAPP.cam ? BAPP.cam.running() : []);
-  renderBizEvents($('[data-bevents]', root), st);
-  const n = (st.events || []).length, count = $('[data-evcount]', root), text = n ? tr('biz.evCount', { n }) : tr('biz.evNone');
-  if (count && count.textContent !== text) count.textContent = text;
+}
+function renderBizEventsScreen(el, st) {
+  if (!el.dataset.mounted) {
+    el.dataset.mounted = '1';
+    el.innerHTML = `<div class="bevents-page"><div class="stack tight"><h1 class="h1">${trh('bar.events')}</h1><p class="lede">${trh('biz.evHint')}</p></div><div data-bevents></div></div>`;
+  }
+  renderBizEvents($('[data-bevents]', el), st);
 }
 
 // Start a game: call the next people in the queue, type two names, or use the camera referee
+function syncStartPickers(el) {
+  const table = $('#hTable', el).value, game = $('#hGame', el).value;
+  if ($('#qTable', el)) $('#qTable', el).value = table;
+  $$('[data-act="biz-picktable"]', el).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === table)));
+  $$('[data-act="biz-pickgame"]', el).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === game)));
+  const t = ((S.state && S.state.tables) || []).find(x => x.id === table), call = $('[data-act="biz-callnext"]', el);
+  if (call) call.disabled = !((S.state && S.state.queue || []).some(q => q.status === 'waiting') && t && !t.game && !(t.champ && t.challenger));
+}
 function renderStartGame(el, st) {
   const ev = BAPP.event && (st.events || []).find(e => e.id === BAPP.event);
   const waiting = st.queue.filter(q => q.status === 'waiting'), ref = st.tables.find(t => t.ref);
@@ -2686,10 +2790,8 @@ function renderStartGame(el, st) {
   const ids = ['qTable', 'hTable', 'hGame', 'hP1', 'hP2'], kept = {};
   if (BAPP.sig.start != null) ids.forEach(id => { const f = $('#' + id, el); if (f) kept[id] = f.value; });
   BAPP.sig.start = sig;
-  const tableOpts = st.tables.map(t => `<option value="${esc(t.id)}">${esc([tname(t), t.ref ? tr('biz.optCam') : '', t.game ? tr('biz.optBusy') : ''].filter(Boolean).join(' · '))}</option>`).join('');
   const freeTables = st.tables.filter(t => !t.game && !(t.champ && t.challenger));
-  const nextOpts = freeTables.map(t => `<option value="${esc(t.id)}">${esc([tname(t), t.ref ? tr('biz.optCam') : ''].filter(Boolean).join(' · '))}</option>`).join('');
-  const gameOpts = ['8', '9', '10'].map(g => `<option value="${g}">${esc(gname(g + '-ball'))}</option>`).join('');
+  const tableField = `<div class="biz-f wide"><span class="biz-picker-label">${trh('biz.pickTable')}</span><div class="seg s4 start-tables" role="group" aria-label="${trh('biz.pickTable')}">${st.tables.map(t => `<button type="button" data-act="biz-picktable" data-t="${esc(t.id)}" aria-pressed="false"><span>${esc(tname(t))}</span>${statusChip(t.game ? 'play' : 'free', tr(t.game ? 'biz.pickBusy' : 'biz.pickFree'))}${t.ref ? ICON.camera : ''}</button>`).join('')}</div></div>`;
   const nextNames = waiting.length > 1 ? pair(waiting[0].name, waiting[1].name) : waiting.length ? waiting[0].name : '';
   el.innerHTML = `<div class="bstart biz">
     ${backBtn('biz-home', tr('common.back'))}
@@ -2697,13 +2799,15 @@ function renderStartGame(el, st) {
     <section class="biz-card">
       <div class="biz-hd"><span class="sign">${trh('biz.nextTitle')}</span></div>
       <p class="dim">${waiting.length ? trh('biz.nextWho', { names: nextNames }) : trh('biz.nextNone')}</p>
-      ${waiting.length && !freeTables.length ? `<p class="dim">${trh('biz.nextBusy', { names: nextNames })}</p>` : `<div class="biz-row"><select id="qTable" aria-label="${trh('biz.tableLabel')}">${nextOpts}</select><button class="b go big" data-act="biz-callnext"${waiting.length ? '' : ' disabled'}>${trh('biz.nextBtn')}</button></div>`}
+      ${freeTables.length ? `<input id="qTable" type="hidden" value="${esc(st.tables[0].id)}">` : ''}
+      ${!freeTables.length ? `<p class="dim">${trh(waiting.length ? 'biz.nextBusy' : 'biz.nextNone', { names: nextNames })}</p>` : `${tableField}<div class="biz-row"><button class="b go big" data-act="biz-callnext">${trh('biz.nextBtn')}</button></div>`}
     </section>
     <section class="biz-card">
       <div class="biz-hd"><span class="sign">${trh('biz.handTitle')}</span></div>
       <form class="biz-form" id="handForm" autocomplete="off">
-        <div class="biz-f"><label for="hTable">${trh('biz.tableLabel')}</label><select id="hTable">${tableOpts}</select></div>
-        <div class="biz-f"><label for="hGame">${trh('biz.gameLabel')}</label><select id="hGame">${gameOpts}</select></div>
+        <input id="hTable" type="hidden" value="${esc(st.tables[0].id)}"><input id="hGame" type="hidden" value="8">
+        ${freeTables.length ? '' : tableField}
+        <div class="biz-f wide"><span class="biz-picker-label">${trh('biz.gameLabel')}</span><div class="seg s3 start-games" role="group" aria-label="${trh('biz.gameLabel')}">${['8', '9', '10'].map(g => `<button type="button" data-act="biz-pickgame" data-v="${g}" aria-pressed="false">${ballChip(Number(g))}${esc(gname(g + '-ball'))}</button>`).join('')}</div></div>
         <div class="biz-f"><label for="hP1">${trh('biz.breaker')}</label><input id="hP1" maxlength="24" placeholder="${trh('biz.namePh')}"></div>
         <div class="biz-f"><label for="hP2">${trh('biz.opponent')}</label><input id="hP2" maxlength="24" placeholder="${trh('biz.namePh')}"></div>
         <div class="biz-row wide"><button class="b go big" type="submit">${trh('biz.handBtn')}</button></div>
@@ -2715,9 +2819,10 @@ function renderStartGame(el, st) {
       <div class="biz-row"><button class="b big" data-act="biz-tocam">${trh('biz.camBtn')}</button></div>
     </section>
   </div>`;
-  if (BAPP.startTable && st.tables.some(t => t.id === BAPP.startTable)) ['qTable', 'hTable'].forEach(id => { const f = $('#' + id, el); if (f) f.value = BAPP.startTable; });
+  if (BAPP.startTable && st.tables.some(t => t.id === BAPP.startTable)) $('#hTable', el).value = BAPP.startTable;
   else { const firstFree = st.tables.find(t => !t.game); if (firstFree) $('#hTable', el).value = firstFree.id; }
   Object.keys(kept).forEach(id => { const f = $('#' + id, el); if (f && kept[id] != null) f.value = kept[id]; });
+  syncStartPickers(el);
   $('#handForm', el).addEventListener('submit', async e => {
     e.preventDefault();
     const table = $('#hTable').value, p1 = $('#hP1').value.trim(), p2 = $('#hP2').value.trim();
@@ -2730,6 +2835,12 @@ function renderStartGame(el, st) {
   });
 }
 async function openNight() { const v = S.state && S.state.venue; if (v && !v.open) await act('venue_open', { open: '1', event: BAPP.event || undefined }, true); }
+async function startNight() { const r = await act('venue_open', { open: '1' }); if (r && r.ok) { BAPP.sig = {}; toast(tr('biz.opened')); render(); } }
+async function endNight() {
+  if (!await askConfirm({ title: tr('biz.endTitle'), text: tr('biz.endText'), yes: tr('biz.endYes'), no: tr('biz.endNo') })) return;
+  if (BAPP.cam) BAPP.cam.stopAll(); BAPP.lastOpen = false;
+  const r = await act('venue_open', { open: '0' }); if (r && r.ok) { BAPP.sig = {}; toast(tr('biz.ended')); render(); }
+}
 
 // The camera step: set it up, then the bar TV
 function renderCameraStep(root, st) {
@@ -2753,8 +2864,7 @@ document.addEventListener('click', async e => {
   if (x === 'bmenu') { menu.hidden = !menu.hidden; a.setAttribute('aria-expanded', String(!menu.hidden)); return; }
   if (x.startsWith('bm-')) {
     menu.hidden = true; $('[data-act="bmenu"]').setAttribute('aria-expanded', 'false');
-    if (x === 'bm-edit') { BAPP.editing = true; BIZ.dirty = false; const el = $('[data-bs="setup"]'); el.dataset.mode = ''; render(); window.scrollTo(0, 0); }
-    else if (x === 'bm-player') goRole('player');
+    if (x === 'bm-player') goRole('player');
     else if (x === 'bm-delete') {
       const v = S.state.venue;
       if (!await askConfirm({ title: tr('biz.delTitle', { name: v.name }), text: tr('biz.delText'), yes: tr('biz.delYes'), no: tr('biz.delNo') })) return;
@@ -2765,7 +2875,14 @@ document.addEventListener('click', async e => {
   }
   if (!x.startsWith('biz-')) return;
   const y = x.slice(4);
-  if (y === 'autofill') bizAutofill();
+  if (y === 'nav') {
+    const screen = a.dataset.v;
+    BAPP.event = null; BAPP.startTable = null; BAPP.editing = screen === 'setup';
+    if (screen === 'camera') BAPP.camFrom = 'home';
+    if (screen === 'setup') { BIZ.dirty = false; $('[data-bs="setup"]').dataset.mode = ''; }
+    go(screen);
+  }
+  else if (y === 'autofill') bizAutofill();
   else if (y === 'tostart') { store.set('role', null); if (location.hash) location.hash = ''; else route(); }
   else if (y === 'editcancel') { BAPP.editing = false; BIZ.dirty = false; go('home'); }
   else if (y === 'testmaps') { e.preventDefault(); const u = $('#bpMaps').value.trim(); if (/^https:\/\//.test(u)) window.open(u, '_blank', 'noopener'); else toast(tr('biz.mapsFirst')); }
@@ -2781,9 +2898,10 @@ document.addEventListener('click', async e => {
   else if (y === 'totv') go('tv');
   else if (y === 'tvexit') go('home');
   else if (y === 'stopcam') { if (BAPP.cam) BAPP.cam.stopAll(); BAPP.sig = {}; toast(tr('biz.camStopped')); render(); }
+  else if (y === 'picktable') { $('#hTable').value = a.dataset.t; syncStartPickers($('.bstart')); }
+  else if (y === 'pickgame') { $('#hGame').value = a.dataset.v; syncStartPickers($('.bstart')); }
   else if (y === 'callnext') {
-    const select = $('#qTable'); if (!select) return;
-    const table = select.value, t = ((S.state && S.state.tables) || []).find(k => k.id === table), first = ((S.state && S.state.queue) || []).find(q => q.status === 'waiting');
+    const table = $('#qTable').value, t = ((S.state && S.state.tables) || []).find(k => k.id === table), first = ((S.state && S.state.queue) || []).find(q => q.status === 'waiting');
     const r = await act('next_match', { table });
     if (r && r.ok) {
       const called = first && r.queue.some(q => q.ticket === first.ticket && q.status === 'called');
@@ -2791,14 +2909,9 @@ document.addEventListener('click', async e => {
       BAPP.startTable = null; toast(tr('biz.called', { table: t ? tname(t) : table })); go('home');
     }
   }
-  else if (y === 'open') {                                   // start the night: players can join the queue from now on
-    const r = await act('venue_open', { open: '1' }); if (r && r.ok) { BAPP.sig = {}; toast(tr('biz.opened')); render(); }
-  }
-  else if (y === 'end') {
-    if (!await askConfirm({ title: tr('biz.endTitle'), text: tr('biz.endText'), yes: tr('biz.endYes'), no: tr('biz.endNo') })) return;
-    if (BAPP.cam) BAPP.cam.stopAll(); BAPP.lastOpen = false;
-    const r = await act('venue_open', { open: '0' }); if (r && r.ok) { BAPP.sig = {}; toast(tr('biz.ended')); render(); }
-  }
+  else if (y === 'open') await startNight();                 // start the night: players can join the queue from now on
+  else if (y === 'end') await endNight();
+  else if (y === 'opentoggle') await (S.state.venue.open ? endNight() : startNight());
   else if (y === 'printqr') bizPrintQR();
   else if (y === 'evadd') { bizResetEventForm($('#bizEvForm')); $('[data-evform]').hidden = false; $('#evTitle').focus(); }
   else if (y === 'evnew') bizResetEventForm($('#bizEvForm'));
@@ -2816,13 +2929,13 @@ document.addEventListener('click', async e => {
   }
 });
 
-// ---------- events (inside the Events fold on the home page) ----------
+// ---------- events ----------
 function renderBizEvents(el, st) {
   if (!el.dataset.mounted) {
     el.dataset.mounted = '1';
     const opt = '<span class="dim" data-i18n="biz.optional"></span>';
     el.innerHTML = `<div class="biz stack">
-      <div class="biz-row"><button class="b" data-act="biz-evadd" data-i18n="biz.evAdd"></button><span class="dim" data-i18n="biz.evHint"></span></div>
+      <div class="biz-row"><button class="b go" data-act="biz-evadd" data-i18n="biz.evAdd"></button></div>
       <div data-biz-events></div>
       <section data-evform hidden><form class="biz-form" id="bizEvForm" autocomplete="off">
         <span class="label wide" id="bizEvTitle" data-i18n="biz.evNew"></span>
@@ -2918,10 +3031,15 @@ function shellView(h) {
   return saved === 'player' || saved === 'biz' ? saved : 'start';
 }
 function goRole(role) {
-  store.set('role', role);
+  store.set('role', role === 'start' ? null : role);
   PAPP.tab = 'home'; PAPP.bar = null; PAPP.ev = null; PAPP.joinFor = null; PAPP.acct = null; PAPP.sig = {};   // land on the main page
   if (typeof BAPP !== 'undefined') { BAPP.screen = 'home'; BAPP.editing = false; BAPP.sig = {}; }
   if (S.sigs) S.sigs.clear(); const h = role === 'biz' ? '#bar' : role === 'player' ? '#play' : ''; if (location.hash === h || (!h && !location.hash)) route(); else location.hash = h; }
+
+function playerMainAction(screen, me) {
+  if (screen === 'result') return me && me.result && me.result.won && me.result.stayOn ? 'ack' : 'rejoin';
+  return { none: 'p-join', queue: 'watch', called: 'checkin', seated: null, live: 'flag', review: 'vote', confirm: 'confirm', manual: 'report', missed: 'rejoin' }[screen] || null;
+}
 
 // ---------- the player's details: a name (and maybe an email), kept on this phone; a password once they've played a game ----------
 function playerProfile() { return store.get('player', null) || PAPP.mem || null; }
@@ -2962,14 +3080,17 @@ function waitInfo(st) {
   const lefts = st.tables.map(t => t.game && t.game.left).filter(x => x != null);
   const soonest = lefts.length ? Math.min(...lefts) : 12;
   const min = Math.max(1, Math.round(soonest + Math.floor(st.queue.length / Math.max(1, st.tables.length)) * 13));
-  return { head: tr('wait.about', { n: min }), more: waiting ? tr('wait.ahead', { n: waiting }) : tr('wait.nobody') };
+  return { head: tr('wait.about', { n: min }), more: waiting ? tr('wait.waiting', { n: waiting }) : tr('bar.noWaiting') };
 }
 function barTodayLine(b, st) { if (b.home && b.open === false) return tr('p.closedNow'); return bizToday(b, st.now) || ''; }
 const tableRow = t => {
   const a = t.champ, b = t.challenger, g = t.game;
-  const head = a && b ? esc(a.name) + ' ' + trh('common.vs') + ' ' + esc(b.name) : a ? trh('tile.needs', { name: a.name }) : trh('tile.free');
-  const sub = [gname(t.gameType), t.ref || t.camera ? tr('card.camera') : '', g ? (g.minutes ? tr('tile.min', { n: g.minutes }) : tr('tile.started')) : a && b ? tr('tile.checkin') : ''].filter(Boolean).join(' · ');
-  return `<div class="row"><span class="n${a ? '' : ' free'}">${tnum(t)}</span><div><b>${head}</b><small>${esc(sub)}</small></div></div>`;
+  const head = a && b ? esc(a.name) + ' ' + trh('common.vs') + ' ' + esc(b.name) : a ? esc(a.name) : trh('tile.free');
+  const late = !g && a && b && [a, b].find(s => !s.present);
+  const kind = g && g.status === 'review' ? (g.review && g.review.staff ? 'staff' : 'review') : g && g.status === 'confirm' ? 'confirm' : g ? 'play' : late ? 'checkin' : a && b ? 'checkin' : a ? 'needs' : 'free';
+  const chip = g && g.status === 'review' ? tr(kind === 'staff' ? 'chip.staff' : 'chip.review') : g && g.status === 'confirm' ? tr('chip.confirm') : g ? (g.minutes ? tr('chip.playing', { n: g.minutes }) : tr('chip.started')) : late ? tr('chip.checkin', { name: late.name, time: mmss(liveLeft(late.checkinLeft)) }) : a && b ? tr('tile.checkin') : a ? tr('chip.needs') : tr('chip.free');
+  const sub = [gname(t.gameType), t.ref || t.camera ? tr('card.camera') : ''].filter(Boolean).join(' · ');
+  return `<div class="row"><span class="n${a ? '' : ' free'}">${tnum(t)}</span><div class="row-main"><div class="name-line"><b>${head}</b>${statusChip(kind, chip)}</div><small>${esc(sub)}</small></div></div>`;
 };
 
 // ---------- render ----------
@@ -3010,7 +3131,7 @@ function renderHome(el, st) {
     ${!mine ? `<section class="stack"><h1 class="h1">${trh('p.noBar')}</h1><p class="lede">${trh('p.noBarMore')}</p></section>`
       : `<section class="stack"><h1 class="h1">${esc(mine.name)}</h1>
         <div class="stack tight"><p class="strong">${esc(open ? W.head : tr('p.closedNow'))}</p><p class="lede">${esc(open ? [W.more, distText(mine)].filter(Boolean).join(' · ') : tr('p.closedMore'))}</p></div>
-        ${open ? `<button class="cta" data-act="p-join" data-id="home">${trh('p.join')}</button>` : ''}</section>`}
+        ${open ? `<button class="cta" data-act="p-join" data-main-action="true" data-id="home">${trh('p.join')}</button>` : ''}</section>`}
     ${mine ? `<div class="two"><button class="quiet" data-act="p-bar" data-id="home" data-from="home">${trh('p.seeBar')}</button>${open ? `<button class="quiet" data-act="p-scan">${APP_ICONS.qr}${trh('p.scan')}</button>` : `<button class="quiet" data-act="ptab" data-v="bars">${trh('p.allBars')}</button>`}</div>` : `<button class="quiet" data-act="ptab" data-v="bars">${trh('p.allBars')}</button>`}
     ${open ? `<section class="barsec"><span class="label">${trh('p.tablesNow')}</span><div class="rows">${st.tables.map(tableRow).join('')}</div></section>` : ''}
     ${my ? `<section class="barsec"><span class="label">${trh('p.yourRating', { bar: st.venue.name })}</span><div class="stats"><div class="stat"><b>${my.rating}</b><span>${trh('p.points')}</span></div><div class="stat"><b>${esc(ord(my.rank))}</b><span>${trh('p.ofPlayers', { n: my.of })}</span></div><div class="stat"><b>${my.w}–${my.l}</b><span>${trh('p.wonLost')}</span></div></div></section>` : ''}
@@ -3115,12 +3236,12 @@ function barPageHTML(b, st) {
     : PAPP.joinFor === b.id ? `<form class="joinbox" id="joinForm" novalidate>
         ${P ? `<p class="strong">${trh('join.as', { name: P.name })}</p>` : `<div class="field"><label for="jName">${trh('join.name')}</label><input id="jName" type="text" maxlength="24" value="${esc(pick.name || '')}" placeholder="${trh('join.namePh')}" autocomplete="nickname" enterkeyhint="go" required><small>${trh('join.nameMore')}</small></div>
           <div class="field"><label for="jEmail">${trh('f.email')} <span class="dim">${trh('common.optional')}</span></label><input id="jEmail" type="email" value="${esc(pick.email || '')}" placeholder="you@example.com" autocomplete="email" inputmode="email" enterkeyhint="go"><small>${trh('join.emailMore')}</small></div>`}
-        <div class="seg" role="group" aria-label="${trh('join.game')}"><button type="button" data-act="p-pick" data-v="8-ball" aria-pressed="${!nine}">${esc(gname('8-ball'))}</button><button type="button" data-act="p-pick" data-v="9-ball" aria-pressed="${nine}">${esc(gname('9-ball'))}</button></div>
-        <label class="switch" for="jRef2"><span><b>${trh('join.camOnly')}</b><small>${trh(nine ? 'join.camOnly9' : 'join.camOnlyMore')}</small></span><span class="knob"><input id="jRef2" type="checkbox" ${pick.refOnly && !nine ? 'checked' : ''} ${nine ? 'disabled' : ''} data-act="p-pickref"><i></i></span></label>
+        <div class="seg" role="group" aria-label="${trh('join.game')}"><button type="button" data-act="p-pick" data-v="8-ball" aria-pressed="${!nine}">${ballChip(8)}${esc(gname('8-ball'))}</button><button type="button" data-act="p-pick" data-v="9-ball" aria-pressed="${nine}">${ballChip(9)}${esc(gname('9-ball'))}</button></div>
+        <label class="switch" for="jRef2"><span><b>${ICON.camera}${trh('join.camOnly')}</b><small>${trh(nine ? 'join.camOnly9' : 'join.camOnlyMore')}</small></span><span class="knob"><input id="jRef2" type="checkbox" ${pick.refOnly && !nine ? 'checked' : ''} ${nine ? 'disabled' : ''} data-act="p-pickref"><i></i></span></label>
         <p class="formerr" role="alert" data-joinerr></p>
         <button class="cta" type="submit" data-act="p-joinnow">${trh('p.join')}</button><button class="quiet" type="button" data-act="p-joincancel">${trh('join.notNow')}</button>
         ${P ? '' : `<button class="linkbtn" type="button" data-act="p-login">${trh('join.login')}</button>`}</form>`
-    : `<div class="stack"><div class="stack tight"><p class="strong">${esc(W.head)}</p><p class="lede">${esc(W.more)}</p></div><button class="cta" data-act="p-join" data-id="${esc(b.id)}">${trh('p.join')}</button></div>`;
+    : `<div class="stack"><div class="stack tight"><p class="strong">${esc(W.head)}</p><p class="lede">${esc(W.more)}</p></div><button class="cta" data-act="p-join" data-main-action="true" data-id="${esc(b.id)}">${trh('p.join')}</button></div>`;
   const live = b.home && open ? `<section class="barsec"><span class="label">${trh('p.tablesNow')}</span><div class="rows">${st.tables.map(tableRow).join('')}</div></section>` : '';
   return `<div class="ph-top">${backBtn('p-back', tr(PAPP.from === 'home' ? 'p.tabHome' : 'p.allBars'))}
       <button class="starbtn${fav ? ' on' : ''}" data-act="p-fav" data-id="${esc(b.id)}" aria-pressed="${fav}" aria-label="${trh(fav ? 'p.unfav' : 'p.fav', { name: b.name })}">${APP_ICONS.star}</button></div>
@@ -3277,6 +3398,7 @@ document.addEventListener('click', async e => {
   const a = e.target.closest('[data-act]'); if (!a || a.disabled) return;
   const x = a.dataset.act;
   if (x === 'role') goRole(a.dataset.v);
+  else if (x === 'rolehome') goRole('start');
   else if (x === 'ptab') { closeScanner(); PAPP.tab = a.dataset.v; PAPP.sig = {}; PAPP.acct = null; if (PAPP.tab === 'bars') { PAPP.bar = null; PAPP.ev = null; PAPP.joinFor = null; } render(); window.scrollTo(0, 0); }
   else if (x === 'p-loginswap') { PAPP.login = !PAPP.login; PAPP.sig = {}; render(); }
   else if (x === 'p-login') { PAPP.tab = 'me'; PAPP.login = true; PAPP.sig = {}; render(); window.scrollTo(0, 0); }
@@ -3367,8 +3489,18 @@ function applyStatic(root) {
   $$('[data-i18n]', root).forEach(e => { e.textContent = tr(e.dataset.i18n); });
   $$('[data-i18n-aria]', root).forEach(e => e.setAttribute('aria-label', tr(e.dataset.i18nAria)));
   $$('[data-i18n-ph]', root).forEach(e => e.setAttribute('placeholder', tr(e.dataset.i18nPh)));
+  $$('[data-icon]', root).forEach(e => { if (ICON[e.dataset.icon] && !e.querySelector(':scope > svg')) e.insertAdjacentHTML('afterbegin', ICON[e.dataset.icon]); });
 }
 applyPrefs();
+document.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const current = e.target.closest('.seg button'); if (!current) return;
+  const buttons = $$('button:not(:disabled)', current.closest('.seg')), at = buttons.indexOf(current); if (at < 0 || buttons.length < 2) return;
+  e.preventDefault();
+  const next = buttons[(at + (e.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length], act = next.dataset.act, value = next.dataset.t || next.dataset.v;
+  next.click();
+  const fresh = $$(`[data-act="${act}"]`).find(b => (b.dataset.t || b.dataset.v) === value); if (fresh) fresh.focus();
+});
 
 // ---------- "are my changes saved?", shown in every header (the words are in i18n.js) ----------
 const SAVE = { kind: client.remote ? 'idle' : 'local', at: 0, why: '', retry: null, lastSaved: 0 };
@@ -3428,6 +3560,7 @@ const liveLeft = sec => sec == null ? null : Math.max(0, Math.round(sec - (Date.
 let toastT;
 function toast(msg) { if (!msg) return; const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3200); }
 // One icon set: 20 px, 1.8 px line, the colour of the text around it.
+const lineIcon = paths => `<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 const ICON = {
   back: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   flag: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 18V2.5M4 3h11l-2.8 3.7L15 10.5H4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>',
@@ -3436,7 +3569,59 @@ const ICON = {
   sun: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   moon: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 12.2A7 7 0 0 1 7.8 3.5a7 7 0 1 0 8.7 8.7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
   close: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  clock: lineIcon('<circle cx="10" cy="10" r="7.5"/><path d="M10 5.5V10l3 2"/>'),
+  timer: lineIcon('<circle cx="10" cy="11" r="6.5"/><path d="M7 2h6M10 2v2.5M10 11l2.5-2.5M15.5 4.5l1.5 1.5"/>'),
+  check: lineIcon('<path d="m3.5 10.5 4 4 9-9"/>'),
+  hourglass: lineIcon('<path d="M5 2.5h10M5 17.5h10M6 2.5c0 4 1.5 5.5 4 7.5-2.5 2-4 3.5-4 7.5M14 2.5c0 4-1.5 5.5-4 7.5 2.5 2 4 3.5 4 7.5"/>'),
+  invite: lineIcon('<circle cx="8" cy="6" r="3"/><path d="M2.5 17c.5-4 2.5-6 5.5-6s5 2 5.5 6M15.5 5v6M12.5 8h6"/>'),
+  leave: lineIcon('<path d="M8 3H3.5v14H8M11 6l4 4-4 4M7 10h8"/>'),
+  table: lineIcon('<rect x="2" y="4" width="16" height="12" rx="2"/><path d="M6 16v2M14 16v2"/><circle cx="4.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><circle cx="15.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><circle cx="4.5" cy="13.5" r=".6" fill="currentColor" stroke="none"/><circle cx="15.5" cy="13.5" r=".6" fill="currentColor" stroke="none"/><circle cx="10" cy="5" r=".6" fill="currentColor" stroke="none"/><circle cx="10" cy="15" r=".6" fill="currentColor" stroke="none"/>'),
+  cue: lineIcon('<path d="m4 17 11-11M14 3l3 3M12.5 7.5l-9 9"/><circle cx="15.5" cy="4.5" r="2"/>'),
+  counter: lineIcon('<rect x="4" y="2" width="12" height="16" rx="2"/><path d="M8 5h4"/><circle cx="10" cy="15" r=".8" fill="currentColor" stroke="none"/>'),
+  tv: lineIcon('<rect x="2" y="3" width="16" height="11" rx="1.5"/><path d="M7 18h6M10 14v4"/>'),
+  camera: lineIcon('<path d="M2.5 6h4l1.5-2h4l1.5 2h4v10h-16Z"/><circle cx="10" cy="11" r="3"/>'),
+  fix: lineIcon('<path d="M12.5 3a4.5 4.5 0 0 0-5.8 5.8L2.5 13a2.1 2.1 0 0 0 3 3l4.2-4.2A4.5 4.5 0 0 0 17 6.5l-3 3-3-3Z"/>'),
+  call: lineIcon('<path d="M3 8v4l3 .5 8 4V3.5l-8 4ZM6 12.5l1 4h3M17 7v6"/>'),
+  start: lineIcon('<circle cx="10" cy="10" r="7.5"/><path d="m8 6 6 4-6 4Z"/>'),
+  power: lineIcon('<path d="M10 2v8M6 4.5a7 7 0 1 0 8 0"/>'),
+  alert: lineIcon('<path d="M10 2.5 18 17H2Z"/><path d="M10 7v4"/><circle cx="10" cy="14" r=".8" fill="currentColor" stroke="none"/>'),
+  calendar: lineIcon('<rect x="2.5" y="4" width="15" height="14" rx="2"/><path d="M6 2v4M14 2v4M2.5 8h15M6 11h2M12 11h2M6 14h2"/>'),
+  store: lineIcon('<path d="M3 8v10h14V8M7 18v-6h6v6M2.5 3h15l1 5c-1 2-3 2-4.2 0-1 2-2.6 2-4.3 0-1 2-2.6 2-4.3 0-1.2 2-3.2 2-4.2 0Z"/>'),
 };
+const CHIP_ICONS = { free: 'table', play: 'clock', wait: 'timer', checkin: 'timer', called: 'call', next: 'call', needs: 'invite', review: 'flag', staff: 'alert', alert: 'alert', confirm: 'hourglass', done: 'check' };
+function statusChip(kind, text) {
+  const name = CHIP_ICONS[kind] || 'clock';
+  return `<span class="schip k-${esc(kind)}">${ICON[name] || ''}<span>${esc(text)}</span></span>`;
+}
+function ringLabel(left) {
+  const n = Math.max(0, Math.round(left));
+  return tr(n > 60 ? 'ring.left' : 'ring.leftSec', { n: n > 60 ? Math.ceil(n / 60) : n });
+}
+function ringHTML(left, total, size) {
+  left = Math.max(0, Math.round(left)); total = Math.max(1, Number(total) || 1);
+  const pct = Math.max(0, Math.min(100, left / total * 100));
+  const cls = size === 'lg' ? 'lg' : size === 'tv' ? 'xl' : 'sm';   // not 'tv': that class is the whole TV page
+  return `<span class="cring ${cls}${left <= 60 ? ' hurry' : ''}" data-ring data-left="${left}" data-total="${total}" role="timer" aria-label="${trh(left > 60 ? 'ring.left' : 'ring.leftSec', { n: left > 60 ? Math.ceil(left / 60) : left })}"><svg viewBox="0 0 40 40" aria-hidden="true"><circle class="cring-track" cx="20" cy="20" r="16" pathLength="100"/><circle class="cring-value" cx="20" cy="20" r="16" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - pct}"/></svg><b>${mmss(left)}</b></span>`;
+}
+function tickRings() {
+  $$('[data-ring]').forEach(el => {
+    const left = liveLeft(Number(el.dataset.left)), total = Number(el.dataset.total) || 1;
+    const nextLabel = ringLabel(left);
+    if (el.getAttribute('aria-label') !== nextLabel) el.setAttribute('aria-label', nextLabel);
+    el.classList.toggle('hurry', left <= 60);
+    const figure = $('b', el); if (figure) figure.textContent = mmss(left);
+    const value = $('.cring-value', el); if (value) value.style.strokeDashoffset = String(100 - Math.max(0, Math.min(100, left / total * 100)));
+  });
+}
+function positionTrack(position) {
+  const ahead = Math.max(0, Number(position) - 1), shown = Math.min(5, ahead);
+  return `<span class="ptrack" aria-hidden="true">${Array.from({ length: shown }, () => '<i></i>').join('')}${ahead > 5 ? `<span>+${ahead - 5}</span>` : ''}<b></b></span>`;
+}
+function personChip(name, state, text) {
+  const icon = { foul: 'flag', clean: 'check', wait: 'hourglass', done: 'check', notYet: 'hourglass' }[state] || 'hourglass';
+  const key = { foul: 'review.saysFoul', clean: 'review.saysNoFoul', wait: 'review.deciding', done: 'confirm.yes', notYet: 'confirm.notYet' }[state] || 'review.deciding';
+  return `<span class="pchip k-${esc(state)}">${ICON[icon]}<b>${esc(name)}</b><span>${esc(text || tr(key))}</span></span>`;
+}
 // Names of things the server sends in English: "Table 1" and "8-ball".
 const tnum = t => Number(String((t && t.id) || '').replace(/\D/g, '')) || 0;
 const tname = t => { const n = tnum(t); return n ? tr('table.n', { n }) : ((t && t.name) || ''); };
@@ -3488,14 +3673,19 @@ function boardHTML(st, opts) {
   if (opts.gameType) list = list.filter(q => q.gameType === opts.gameType);
   if (opts.skipMe && me) list = list.filter(q => q.ticket !== me.ticket);   // you are at your table, not on the board
   const called = list.filter(q => q.status === 'called'), waiting = list.filter(q => q.status === 'waiting');
-  const items = called.map(q => `<li class="done"><span>${esc(q.name)}</span><small>${trh('board.called', { table: tnameOf(st, q.table) })}</small></li>`)
-    .concat(waiting.slice(0, max).map((q, i) => {
-      const mine = me && q.ticket === me.ticket;
-      const note = mine ? tr('common.you') : opts.eta && q.eta ? (q.eta.min <= 0 ? tr('board.soon') : tr('board.wait', { n: q.eta.min })) : '';
-      return `<li class="${mine ? 'me' : ''}"><span>${i + 1}. ${esc(q.name)}</span>${note ? `<small>${esc(note)}</small>` : ''}</li>`;
+  const calledSeat = q => { for (const t of st.tables) for (const side of ['champ', 'challenger']) if (t[side] && t[side].ticket === q.ticket) return t[side]; return null; };
+  const items = called.map(q => {
+    if (!opts.rings) return `<li class="done"><span>${esc(q.name)}</span><small>${trh('board.called', { table: tnameOf(st, q.table) })}</small></li>`;
+    const seat = calledSeat(q), left = seat ? liveLeft(seat.checkinLeft) : 0;
+    return `<li class="done"><span>${esc(q.name)}</span><span class="board-when">${seat ? ringHTML(left, st.rules.checkinSec, 'sm') : ''}${statusChip('called', tr('board.calledAt', { table: tnameOf(st, q.table), time: mmss(left) }))}</span></li>`;
+  }).concat(waiting.slice(0, max).map((q, i) => {
+      const mine = !opts.noMe && me && q.ticket === me.ticket;
+      const note = mine && !opts.rings ? tr('common.you') : opts.eta && q.eta ? (q.eta.min <= 0 ? tr('board.soon') : tr('board.wait', { n: q.eta.min })) : '';
+      return `<li class="${mine ? 'me' : ''}"><span>${i + 1}. ${esc(q.name)}</span>${note ? opts.rings && !mine ? statusChip('play', note) : `<small>${esc(note)}</small>` : ''}</li>`;
     }));
   const more = waiting.length > max ? `<span class="more">${trh('board.more', { n: waiting.length - max })}</span>` : '';
-  return `<section class="board" aria-label="${esc(opts.title || tr('board.title'))}"><span class="label">${esc(opts.title || tr('board.title'))}</span>${items.length ? `<ol>${items.join('')}</ol>${more}` : `<span class="empty">${trh('board.empty')}</span>`}</section>`;
+  const title = opts.rings ? tr('board.titleN', { title: opts.title || tr('board.title'), n: list.length }) : opts.title || tr('board.title');
+  return `<section class="board" aria-label="${esc(title)}"><span class="label">${esc(title)}</span>${items.length ? `<ol>${items.join('')}</ol>${more}` : `<span class="empty">${trh('board.empty')}</span>`}</section>`;
 }
 // Where your table is: the four tables as they stand on the floor, yours marked.
 function floorHTML(st) {
@@ -3624,16 +3814,29 @@ function phoneScreen(st) {
   }
   return 'none';
 }
+function alertOnCall(prev, next, t) {
+  if (next !== 'called' && prev === 'called') document.title = 'Loopool';
+  if (next !== 'called' || prev === 'called') return;
+  try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) { /* unsupported or blocked */ }
+  if (document.hidden && t) document.title = tr('alert.title', { table: tname(t) });
+}
 function renderPhone(el, st, key) {
-  const scr = phoneScreen(st), me = st.me, t = myTable(st), g = t && t.game;
-  if (scr === 'none') { el.innerHTML = ''; S.sigs.delete(el); return; }
+  const scr = phoneScreen(st), me = st.me, t = myTable(st), g = t && t.game, previous = el.dataset.state || 'none';
+  alertOnCall(previous, scr, t);
+  if (scr === 'none') { el.innerHTML = ''; delete el.dataset.state; S.sigs.delete(el); return; }
   let data;
-  if (scr === 'called') data = [me, liveLeft(t && t[me.side] && t[me.side].checkinLeft), t && t[me.side === 'champ' ? 'challenger' : 'champ']];
+  if (scr === 'called') {
+    const left = liveLeft(t && t[me.side] && t[me.side].checkinLeft);
+    data = [me, left == null ? null : [Math.ceil(left / 60), left <= 60], t && t[me.side === 'champ' ? 'challenger' : 'champ']];
+  }
   else data = [me, g ? [g.status, g.turn, g.ballInHand, g.shots && g.shots.length, g.review && [g.review.votes, g.review.staff], g.confirm, g.winner] : null, t && [t.status, t.streak, t.champ && t.champ.name, t.challenger && [t.challenger.name, t.challenger.present, liveLeft(t.challenger.checkinLeft)]], scr === 'queue' ? [st.queue, S.watchOpen, st.tables.map(x => x.game && x.game.minutes)] : null];
   const sig = scr + JSON.stringify(data);
   if (S.sigs.get(el) === sig) return;
   S.sigs.set(el, sig);
   el.innerHTML = PHONE[scr](st, me, t, g);
+  el.dataset.state = scr;
+  const main = playerMainAction(scr, st), mainButton = main && $(`[data-act="${main}"]`, el);
+  if (mainButton) mainButton.dataset.mainAction = 'true';
   if (scr === 'live') { const v = mount(el, 'phone@' + key); if (v) v.show(g); }
   if (scr === 'review') { const v = mount(el, 'review@' + key); if (v) v.replay(g.id + ':' + g.review.shotNo + ':' + g.review.source, g.review.replay); }
 }
@@ -3648,30 +3851,34 @@ const PHONE = {
     const where = !et ? '' : et.game && et.champ && et.challenger ? trh('queue.likelyGame', { table: tname(et), a: et.champ.name, b: et.challenger.name, n: et.game.minutes }) : trh('queue.likely', { table: tname(et) });
     return `<div class="ticket"><div class="main"><span class="label">${trh('queue.place')}</span>
         <span class="no${ahead ? '' : ' words'}">${ahead ? esc(ord(me.position)) : trh('queue.next')}</span>
-        <span class="wait">${esc(wait)}</span>${where ? `<span class="where">${where}</span>` : ''}</div>
+        ${me.position === 1 ? statusChip('next', tr('queue.stayClose')) : ''}
+        <span class="wait">${esc(wait)}</span>${where ? `<span class="where">${where}</span>` : ''}${positionTrack(me.position)}</div>
         <div class="stub"><span>${trh('queue.ticket')}</span><b>${esc(me.ticket)}</b></div></div>
       <p class="lede">${trh(me.emailOn ? 'queue.howEmail' : 'queue.howPage', { n: min })}</p>
+      <div class="actbar"><button class="quiet" data-act="watch" aria-expanded="${S.watchOpen}">${ICON.eye}<span>${trh(S.watchOpen ? 'queue.watchHide' : 'queue.watch')}</span></button>
+        <button class="quiet" data-act="p-invite">${ICON.invite}<span>${trh('me.invite')}</span></button>
+        <button class="quiet" data-act="ask">${ICON.ask}<span>${trh('ask.open')}</span></button></div>
       ${boardHTML(st, { gameType: me.gameType, title: tr('board.titleGame', { game: gname(me.gameType) }) })}
-      <div class="push"><div class="two"><button class="quiet" data-act="watch" aria-expanded="${S.watchOpen}">${ICON.eye}${trh(S.watchOpen ? 'queue.watchHide' : 'queue.watch')}</button>${askBtn()}</div>
-        <button class="quiet" data-act="leave">${trh('queue.leave')}</button></div>`;
+      <div class="push"><button class="quiet queue-leave" data-act="leave">${ICON.leave}${trh('queue.leave')}</button></div>`;
   },
   // Called: the table, the time left and the one button, together.
   called(st, me, t) {
-    const opp = t[otherSide(me.side)], champ = opp && otherSide(me.side) === 'champ';
+    const opp = t[otherSide(me.side)], champ = opp && otherSide(me.side) === 'champ', left = liveLeft(t[me.side].checkinLeft);
     const vs = !opp ? trh('called.vsNone') : champ && t.streak ? trh('called.vsStreak', { name: opp.name, n: t.streak }) : trh('called.vs', { name: opp.name });
-    return `<div class="called"><span class="label">${trh('called.ready')}</span><span class="big">${esc(tname(t))}</span>
-        <div class="count"><b>${mmss(liveLeft(t[me.side].checkinLeft))}</b><span>${trh('called.left')}</span></div>
+    return `<div class="called${left <= 60 ? ' hurry' : ''}"><span class="label">${trh('called.ready')}</span><span class="big">${esc(tname(t))}</span>
+        <div class="count">${ringHTML(left, st.rules.checkinSec, 'lg')}<span>${trh('called.left')}</span></div>
+        ${left <= 60 ? statusChip('alert', tr('called.hurry')) : ''}
         <button class="cta" data-act="checkin">${trh('called.here', { table: tname(t) })}</button></div>
       ${floorHTML(st)}
       <div class="stack tight"><p class="strong">${vs}</p><p class="lede">${trh('called.rule')}</p></div>
-      <div class="push"><button class="quiet" data-act="leave">${trh('called.cant')}</button></div>`;
+      <div class="push"><button class="quiet" data-act="leave">${ICON.leave}${trh('called.cant')}</button></div>`;
   },
   seated(st, me, t) {
     const other = t[otherSide(me.side)], cam = t.ref || t.camera;
     const h = !other ? tr('seated.waitAny') : other.present ? tr('seated.both') : tr('seated.waitFor', { name: other.name });
-    const p = !other ? tr('seated.waitAnyMore', { game: gname(t.gameType) }) : other.present ? tr(cam ? 'seated.bothCam' : 'seated.bothMore') : tr('seated.waitForMore', { name: other.name, time: mmss(liveLeft(other.checkinLeft)) });
+    const p = !other ? esc(tr('seated.waitAnyMore', { game: gname(t.gameType) })) : other.present ? esc(tr(cam ? 'seated.bothCam' : 'seated.bothMore')) : `${ringHTML(liveLeft(other.checkinLeft), st.rules.checkinSec, 'sm')}<span>${trh('seated.waitForMore', { name: other.name, time: mmss(liveLeft(other.checkinLeft)) })}</span>`;
     return `<p class="label">${trh('seated.at', { table: tname(t) })}</p>
-      <div class="stack"><h1 class="h1">${esc(h)}</h1><p class="lede">${esc(p)}</p></div>
+      <div class="stack"><h1 class="h1">${esc(h)}</h1><p class="lede seated-wait">${p}</p></div>
       ${me.side === 'champ' && t.streak ? `<div class="hold"><b>${trh('seated.run', { table: tname(t) })}</b>${tally(t.streak, st.rules.maxWins)}</div>` : ''}
       ${boardHTML(st, { gameType: t.gameType, skipMe: true, title: tr('board.titleGame', { game: gname(t.gameType) }) })}
       <div class="push">${askBtn()}${me.side === 'champ' && !other ? `<button class="quiet" data-act="leave">${trh('seated.giveUp')}</button>` : ''}</div>`;
@@ -3705,7 +3912,7 @@ const PHONE = {
       const myGroup = g.groups[me.side];
       h1 = shooterIsMe ? trh('review.youHit', { ball: r.ball }) : trh(myGroup && groupOfBall(r.ball) === myGroup ? 'review.theyHitYours' : 'review.theyHit', { name: shooter.name, ball: r.ball });
     }
-    const voteBox = s => { const v = r.votes[s], you = isMe(st, t[s]); return `<div class="vote${v ? '' : ' wait'}"><b>${esc(who(st, t, s))}</b><span class="${v === 'accept' ? 'no' : v === 'dispute' ? 'yes' : ''}">${v === 'accept' ? trh(you ? 'review.youFoul' : 'review.saysFoul') : v === 'dispute' ? trh(you ? 'review.youNoFoul' : 'review.saysNoFoul') : trh('review.deciding')}</span></div>`; };
+    const voteBox = s => { const v = r.votes[s], you = isMe(st, t[s]); return personChip(who(st, t, s), v === 'accept' ? 'foul' : v === 'dispute' ? 'clean' : 'wait', v === 'accept' ? tr(you ? 'review.youFoul' : 'review.saysFoul') : v === 'dispute' ? tr(you ? 'review.youNoFoul' : 'review.saysNoFoul') : tr('review.deciding')); };
     const conf = r.foul.conf ? Math.round(r.foul.conf * 100) : null, sure = Math.round((r.threshold || 0.8) * 100);
     // Shots read from camera photos have no ball positions to replay: show the photo and say so.
     const look = r.replay && r.replay.from ? `<div><div class="tbl" data-tbl="review"></div><p class="cliptag">${trh('review.replayCap', { n: r.shotNo })}</p></div>`
@@ -3713,17 +3920,17 @@ const PHONE = {
     const ifFoul = isMe(st, t[r.ifFoul]) ? trh('review.ifFoulYou') : trh('review.ifFoulThem', { name: t[r.ifFoul].name });
     return `<p class="label bad">${trh('review.paused', { table: tname(t), n: r.shotNo })}</p>
       <h1 class="h2">${h1}</h1>
-      ${look}
       ${r.staff ? `<p class="strong">${trh('review.staff')}</p>` : mine ? `<p class="strong">${trh('review.waitOther')}</p>`
         : `<div class="stack"><p class="strong">${trh('review.ask')}</p><div class="two"><button class="cta foul" data-act="vote" data-v="accept">${trh('review.foul')}</button><button class="cta line" data-act="vote" data-v="dispute">${trh('review.noFoul')}</button></div></div>`}
       <p class="lede">${ifFoul}</p>
+      ${look}
       <div class="two">${voteBox(me.side)}${voteBox(os)}</div>
       ${conf != null ? `<div class="stack"><p>${trh('review.sure', { n: conf })}</p><div class="meter"><i style="width:${conf}%"></i><b style="left:${sure}%"></b></div><p class="lede">${trh('review.sureMore', { n: sure })}</p></div>` : ''}
       ${askBtn()}`;
   },
   confirm(st, me, t, g) {
     const iWon = g.winner === me.side, os = otherSide(me.side);
-    const c = s => `<div class="vote${g.confirm[s] ? '' : ' wait'}"><b>${esc(who(st, t, s))}</b><span class="${g.confirm[s] ? 'yes' : ''}">${trh(g.confirm[s] ? 'confirm.yes' : 'confirm.notYet')}</span></div>`;
+    const c = s => personChip(who(st, t, s), g.confirm[s] ? 'done' : 'notYet');
     return `<p class="label">${trh('confirm.over', { table: tname(t) })}</p>
       <div class="won stack"><span class="big">${iWon ? trh('result.won') : trh('confirm.wins', { name: t[g.winner].name })}</span>${g.winReason ? `<span class="lede">${esc(g.winReason)}</span>` : ''}</div>
       ${g.confirm[me.side] ? `<p class="strong">${trh('confirm.waiting')}</p>` : `<div class="stack"><p class="lede">${trh('confirm.why')}</p><button class="cta" data-act="confirm">${trh('confirm.do')}</button></div>`}
@@ -3780,7 +3987,7 @@ function tvShotHTML(s) {
 function tvTile(x, size) {
   const a = x.champ, b = x.challenger, g = x.game;
   if (a && !b) size = ' xlong';   // "{name} needs an opponent" is a long sentence: it gets its second line
-  const whoLine = a && b ? `${esc(a.name)} ${trh('common.vs')} ${esc(b.name)}` : a ? trh('tile.needs', { name: a.name }) : trh('tile.free');
+  const whoLine = a && b ? (String(size).includes('xlong') ? `<span class="tvname">${esc(a.name)}</span><span class="tvvs">${trh('common.vs')}</span><span class="tvname">${esc(b.name)}</span>` : `${esc(a.name)} ${trh('common.vs')} ${esc(b.name)}`) : a ? trh('tile.needs', { name: a.name }) : trh('tile.free');
   const meta = g ? [gname(x.gameType), g.minutes ? tr('tile.min', { n: g.minutes }) : tr('tile.started'), g.mode === 'camera' ? tr('tile.camera') : '']
     : a && b ? [gname(x.gameType), tr('tile.checkin')] : [gname(x.gameType), tr('tile.scan')];
   return `<div class="tvt${a ? '' : ' free'}"><span class="sign">${esc(tname(x))}</span><span class="who${size}">${whoLine}</span><span class="meta">${esc(meta.filter(Boolean).join(' · '))}</span></div>`;
@@ -3794,6 +4001,7 @@ function renderTV(el, st, key) {
   fitTV(el);
   const t = cameraTable(st), g = t ? t.game : null;
   const f = st.feed[0], top = st.leaderboard.slice(0, 3), calledQ = st.queue.filter(q => q.status === 'called');
+  const calledSeat = q => { for (const table of st.tables) for (const side of ['champ', 'challenger']) if (table[side] && table[side].ticket === q.ticket) return table[side]; return null; };
   const sig = JSON.stringify([Math.floor(st.now / 60000), st.venue.name, st.tables.map(x => [x.status, x.frameAt, x.streak, x.champ && x.champ.name, x.challenger && [x.challenger.name, x.challenger.present], x.game && [x.game.minutes, x.game.mode]]), g && [g.id, g.shots.length, g.status, g.turn, g.review && [g.review.staff, g.review.votes], g.shots[g.shots.length - 1]], st.queue.map(q => q.ticket + q.status + (q.eta && q.eta.min)), top.map(p => p.name + p.rating), f && f.kind === 'ai' && f.at + f.text, st.recent[0] && [st.recent[0].winner, st.recent[0].loser, st.recent[0].table, st.recent[0].delta], S.qr ? 1 : 0]);
   if (S.sigs.get(el) === sig) return;
   S.sigs.set(el, sig);
@@ -3810,7 +4018,7 @@ function renderTV(el, st, key) {
     main = `<div class="score">${pl('challenger')}<div class="mid">${g.shots.length ? trh('tv.shot') + '<b>' + g.shots.length + '</b>' : trh('tv.break')}${g.turn && t[g.turn] ? `<span class="turnwho">${trh('live.theirShot', { name: t[g.turn].name })}</span>` : ''}</div>${pl('champ', true)}</div>
       <div class="tvtable">${photoURL(t) ? photoHTML(t, g.shots.length ? tr('tv.photoAfter', { n: g.shots.length }) : '') : '<div data-tbl="tv"></div>'}${banner}</div>`;
   } else {
-    main = `${calledQ.slice(0, 2).map(q => `<div class="callout"><b>${esc(q.name)}</b><span>${trh('tv.called', { table: tnameOf(st, q.table) })}</span></div>`).join('')}
+    main = `${calledQ.slice(0, 2).map(q => { const seat = calledSeat(q), left = seat ? liveLeft(seat.checkinLeft) : 0; return `<div class="callout">${seat ? ringHTML(left, st.rules.checkinSec, 'tv') : ''}<b>${esc(q.name)}</b><span>${trh('tv.called', { table: tnameOf(st, q.table) })}</span></div>`; }).join('')}
       <div class="tvtiles">${st.tables.map(x => tvTile(x, tvSize(st.tables))).join('')}</div>`;
   }
   const last = g && g.shots.length ? g.shots[g.shots.length - 1] : null, ai = f && f.kind === 'ai', rc = st.recent[0];
@@ -3818,12 +4026,12 @@ function renderTV(el, st, key) {
   const strip = ai ? `<b class="ai">${trh('tv.call')}</b><span>${esc(f.text)}</span>`
     : last ? `<b>${trh('tv.latest')}</b><span>${shotLine(last, true)}</span>`
     : rc ? `<b>${trh('tv.latest')}</b><span>${trh('res.beat', { w: rc.winner, l: rc.loser })} · ${esc(tnameOf(st, rc.table))}${rc.rated && rc.delta ? ' · ' + trh('res.points', { n: rc.delta }) : ''}</span>` : '';
-  el.innerHTML = `<div class="tv"><div class="tv-top">${g ? `<span class="onair">${trh('tv.live')}</span>` : ''}<span class="sign">${g ? esc(tname(t) + ' · ' + gname(g.gameType || t.gameType)) : esc(st.venue.name)}</span><span class="clock">${fmtTime(st.now)}</span><span data-tools></span></div>
+  el.innerHTML = `<div class="tv"><div class="tv-top">${g ? `<span class="onair">${trh('tv.live')}</span>` : ''}<span class="sign">${g ? esc(tname(t) + ' · ' + gname(g.gameType || t.gameType)) : esc(st.venue.name)}</span><span class="clock">${fmtTime(st.now)}</span><button class="icobtn tv-change" data-act="rolehome" aria-label="${trh('start.change')}">${ICON.back}</button><span data-tools></span></div>
     <div class="tv-grid"><div class="tv-main">${main}${strip ? `<div class="ticker">${strip}</div>` : ''}</div>
       <div class="aside">
-        ${boardHTML(st, { title: tr('tv.waiting'), eta: true, max: 5 })}
+        ${boardHTML(st, { title: tr('tv.waiting'), eta: true, max: 5, noMe: key !== 'pwatch', rings: true })}
         ${last && last.score != null ? tvShotHTML(last) : top.length ? `<section class="ratings"><span class="label">${trh('tv.top')}</span><div class="rt">${top.map((p, i) => `<div>${i + 1}. ${esc(p.name)}<span>${p.rating}</span></div>`).join('')}</div></section>` : ''}
-        <div class="qrline"><span class="qrbox">${S.qr ? `<img src="${S.qr}" alt="${trh('tv.qrAlt')}">` : ''}</span><p>${trh('tv.scan')}</p></div>
+        <div class="qrline"><span class="qrbox">${S.qr ? `<img src="${S.qr}" alt="${trh('tv.qrAlt')}">` : ''}</span><p>${trh('tv.scan')}<span class="qrwait">${esc(waitInfo(st).head)}</span></p></div>
       </div></div></div>`;
   drawHeaders();
   const v = mount(el, 'tv@' + key); if (v) v.show(g, g && g.status === 'review' && g.review ? g.review.ball : null);
@@ -3842,26 +4050,33 @@ function reviewDecision(t, r, decision) {
 }
 function tableCard(st, t, nWaiting) {
   const g = t.game, a = t.champ, b = t.challenger;
-  let cls = 'play', state;
-  if (g && g.status === 'review') { cls = 'alert'; state = g.review && g.review.staff ? tr('card.staff', { n: g.review.shotNo }) : tr('card.review', { n: g.review ? g.review.shotNo : '' }); }
-  else if (g && g.status === 'confirm') { cls = 'wait'; state = tr('card.confirm'); }
-  else if (g) state = g.minutes ? tr('card.playing', { n: g.minutes }) : tr('card.started');
-  else if (a && b) { cls = 'wait'; const late = [a, b].find(s => !s.present); state = late ? tr('card.checkin', { name: late.name, time: mmss(liveLeft(late.checkinLeft)) }) : tr('card.ready'); }
-  else if (a) { cls = 'wait'; state = tr('card.needs'); }
-  else { cls = 'free'; state = tr('card.free'); }
-  const whoLine = a && b ? `${esc(a.name)} <span class="dim">${trh('common.vs')}</span> ${esc(b.name)}` : a ? esc(a.name) : '';
+  let cls = 'play', kind = 'play', state;
+  if (g && g.status === 'review') { cls = 'alert'; kind = g.review && g.review.staff ? 'staff' : 'review'; state = tr(kind === 'staff' ? 'chip.staff' : 'chip.review'); }
+  else if (g && g.status === 'confirm') { cls = 'wait'; kind = 'confirm'; state = tr('chip.confirm'); }
+  else if (g) state = g.minutes ? tr('chip.playing', { n: g.minutes }) : tr('chip.started');
+  else if (a && b) { cls = 'wait'; kind = 'checkin'; const late = [a, b].find(s => !s.present); state = late ? tr('chip.checkin', { name: late.name, time: mmss(liveLeft(late.checkinLeft)) }) : tr('card.ready'); }
+  else if (a) { cls = 'wait'; kind = 'needs'; state = tr('chip.needs'); }
+  else { cls = 'free'; kind = 'free'; state = tr('chip.free'); }
+  const late = !g && a && b && [a, b].find(s => !s.present);
+  const chip = late ? `<span class="checkin-chip">${ringHTML(liveLeft(late.checkinLeft), st.rules.checkinSec, 'sm')}${statusChip(kind, state)}</span>` : statusChip(late ? kind : a && b && !g && ![a, b].some(s => !s.present) ? 'done' : kind, state);
+  const whoLine = a && b ? `${esc(a.name)} <span class="dim">${trh('common.vs')}</span> ${esc(b.name)}` : a ? esc(a.name) : `<span class="free-name">${trh('chip.free')}</span>`;
   const meta = [gname(t.gameType), t.ref || t.camera ? tr('card.camera') : '', g && g.mode === 'camera' && g.shots.length ? tr('live.shotN', { n: g.shots.length }) : ''].filter(Boolean).join(' · ');
-  let acts = '';
-  if (g || a || b) acts += `<button class="b" data-act="tb-fix" data-t="${t.id}">${trh(g ? 'card.fix' : 'card.manage')}</button>`;
-  if (!g && !(a && b)) acts += (nWaiting ? `<button class="b go" data-act="tb-next" data-t="${t.id}">${trh('card.callNext')}</button>` : '') + `<button class="b" data-act="biz-start" data-t="${t.id}">${trh('card.start')}</button>`;
-  return `<div class="tcard${cls === 'free' ? ' free' : ''}${cls === 'alert' && g.review && g.review.staff ? ' staff' : ''}"><div class="hd"><span class="sign">${esc(tname(t))}</span><span class="st ${cls}">${esc(state)}</span></div>
-    <div class="hd">${whoLine ? `<span class="who">${whoLine}</span>` : ''}<span class="meta">${esc(meta)}</span></div><div class="acts">${acts}</div></div>`;
+  let primary = '', secondary = '';
+  if (g) primary = `<button class="b" data-act="tb-fix" data-t="${t.id}">${ICON.fix}${trh('card.fix')}</button>`;
+  else if (a && b) primary = `<button class="b" data-act="tb-fix" data-t="${t.id}">${ICON.fix}${trh('card.manage')}</button>`;
+  else {
+    if (nWaiting) primary = `<button class="b go" data-act="tb-next" data-t="${t.id}">${ICON.call}${trh('card.callNext')}</button>`;
+    else if (!a) primary = `<button class="b go" data-act="biz-start" data-t="${t.id}">${ICON.start}${trh('card.start')}</button>`;
+    if (a) secondary = `<button class="b" data-act="tb-fix" data-t="${t.id}">${ICON.fix}${trh('card.manageShort')}</button>`;
+    else if (nWaiting) secondary = `<button class="b" data-act="biz-start" data-t="${t.id}">${ICON.start}${trh('card.startShort')}</button>`;
+  }
+  return `<div class="tcard k-${cls}${kind === 'staff' ? ' staff' : ''}"><div class="hd tcard-head"><span class="sign">${esc(tname(t))}</span>${chip}</div>
+    <div class="tcard-names"><span class="who">${whoLine}</span></div><span class="meta">${esc(meta)}</span><div class="acts">${primary}${secondary}</div></div>`;
 }
 function renderBarHome(root, st, cams) {
   const v = st.venue, home = $('[data-bs="home"]', root), waiting = st.queue.filter(q => q.status === 'waiting');
   const sig = JSON.stringify([v.open, v.eventId, cams, st.tables.map(t => [t.status, t.streak, t.canUndo, t.camLive, t.champ && [t.champ.name, t.champ.present, liveLeft(t.champ.checkinLeft)], t.challenger && [t.challenger.name, t.challenger.present, liveLeft(t.challenger.checkinLeft)], t.game && [t.game.minutes, t.game.status, t.game.mode, t.game.turn, t.game.ballInHand, t.game.shots && t.game.shots.length, t.game.review && [t.game.review.staff, t.game.review.shotNo]]]), st.queue, st.recent.slice(0, 5).map(r => r.at), st.feed.slice(0, 8).map(f => f.at + f.text), S.qr ? 1 : 0]);
   renderTableTools(st);
-  if (!home.dataset.folds) { home.dataset.folds = '1'; if (window.innerWidth >= 1200) $$('details.fold', home).forEach(d => { d.open = true; }); }   // a wide screen has room to show events and results at once; on the tablet they are one tap away
   if (S.sigs.get(home) === sig) return;
   S.sigs.set(home, sig);
   // 1. what needs staff now: a foul the two players disagree about; a bar that has not started its night
@@ -3876,11 +4091,10 @@ function renderBarHome(root, st, cams) {
   $('[data-bact]', home).innerHTML = `<p class="tell">${trh('bar.playing', { n: playing, of: st.tables.length })} · ${waiting.length ? trh('bar.waiting', { n: waiting.length }) : trh('bar.noWaiting')}${more ? `<small>${esc(more)}</small>` : ''}</p>
     <button class="b go big" data-act="biz-start">${trh('bar.start')}</button>
     <button class="b big" data-act="biz-totv">${trh('bar.tv')}</button>
-    ${cams.length ? `<button class="b big" data-act="biz-stopcam">${trh('bar.stopCam')}</button>` : ''}
-    ${v.open ? `<button class="b big danger" data-act="biz-end">${trh('bar.end')}</button>` : ''}`;
+    ${cams.length ? `<button class="b big" data-act="biz-stopcam">${trh('bar.stopCam')}</button>` : ''}`;
   // 3. the tables and the queue
   $('[data-venue]', home).innerHTML = `<div class="bgrid"><div class="tables">${st.tables.map(t => tableCard(st, t, waiting.length)).join('')}</div>
-    <div class="qside">${boardHTML(st, { title: tr('bar.board'), eta: true })}
+    <div class="qside">${boardHTML(st, { title: tr('bar.board'), eta: true, rings: true })}
       <div class="qrline"><span class="qrbox">${S.qr ? `<img src="${S.qr}" alt="${trh('tv.qrAlt')}">` : ''}</span><div><p>${trh('bar.qr')}</p><button class="b" data-act="biz-printqr">${trh('bar.print')}</button></div></div></div></div>`;
   // 4. one tap away: tonight's results and what happened
   const needsStaff = f => f.kind === 'staff' && st.tables.some(t => t.id === f.table && t.status === 'staff' && t.game && t.game.id === f.game && t.game.review && t.game.review.shotNo === f.shot);
@@ -3941,11 +4155,12 @@ function render() {
   VIEWS.forEach(v => $('#v-' + v).classList.toggle('on', v === S.view));
   drawHeaders();
   const st = S.state;
-  if (!st) return;
+  if (!st) { tickRings(); return; }
   const v = S.view;
   if (v === 'player') renderPlayerApp(st);                 // player.js
   if (v === 'biz') renderBizApp(st);                       // business.js
   if (v === 'live') renderTV($('#v-live [data-tv]'), st, 'live');
+  tickRings();
 }
 // An in-app "are you sure?" that matches the other dialogs. Resolves true only when the action button is pressed
 // (Esc and the other button both mean no). The safe button gets the focus.
