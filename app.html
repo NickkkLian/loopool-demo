@@ -774,6 +774,7 @@ function createState(now) {
     players: {},
     tables: [table('T1', 1, true, '8-ball'), table('T2', 2, false, '9-ball'), table('T3', 3, false, '8-ball'), table('T4', 4, false, '9-ball')],
     queue: [],
+    help: [],
     history: [],
     feed: [],
     outbox: [],
@@ -800,7 +801,9 @@ function textSeats(S, t, now, notes, msgFor, opts) {
   ['champ', 'challenger'].forEach(side => { const s = t[side]; if (s && s.ticket) text(S, now, s.ticket, msgFor(side), notes, typeof opts === 'function' ? opts(side) : opts); });
 }
 function eligible(q, t) { return q.status === 'waiting' && q.gameType === t.gameType && (!q.refOnly || t.ref); }
-function seatFromTicket(q, now) { return { pid: q.pid, name: q.name, ticket: q.ticket, real: !!q.real, present: false, calledAt: now }; }
+function seatFromTicket(q, now) { return { pid: q.pid, name: displayName(q), ticket: q.ticket, real: !!q.real, present: false, calledAt: now }; }
+function displayName(q) { return q.name + (q.partner ? ' & ' + q.partner : ''); }
+function checkinMs(s) { return (s.real ? RULES.checkinSec : RULES.simCheckinSec) * 1000 + (s.checkinExtra || 0); }
 
 // Player stats (shots scored by the AI, fouls, best shot) for the leaderboard and badges.
 function stat(S, pid) { const p = S.players[pid]; if (!p) return null; if (p.shots == null) Object.assign(p, { shots: 0, scoreSum: 0, fouls: 0, best: 0 }); return p; }
@@ -918,8 +921,8 @@ function settle(S, now, notes) {
         for (const side of ['champ', 'challenger']) {
           const s = t[side];
           if (!s) continue;
-          if (!s.present && !s.real && now - s.calledAt >= RULES.simCheckinSec * 1000) { s.present = true; log(S, now, 'queue', s.name + ' checked in at ' + t.name); changed = true; }
-          if (!s.present && s.real && now - s.calledAt >= RULES.checkinSec * 1000) {
+          if (!s.present && !s.real && now - s.calledAt >= checkinMs(s)) { s.present = true; log(S, now, 'queue', s.name + ' checked in at ' + t.name); changed = true; }
+          if (!s.present && s.real && now - s.calledAt >= checkinMs(s)) {
             const q = S.queue.find(x => x.ticket === s.ticket);
             if (q) { q.status = 'missed'; text(S, now, q.ticket, 'You missed your turn at ' + t.name + ', so the next name on the board was called. Put your name back on the board any time.', notes, { subject: 'You missed your turn at ' + t.name }); }
             log(S, now, 'queue', s.name + ' missed the check-in for ' + t.name);
@@ -946,6 +949,7 @@ function settle(S, now, notes) {
       }
     }
   }
+  S.help = S.help.filter(h => { const q = findTicket(S, h.ticket); return q && ['waiting', 'called', 'playing'].includes(q.status); });
 }
 
 function applyShot(S, t, ev, now, notes) {
@@ -1058,7 +1062,7 @@ function etas(S, now) {
 function publicState(S, now, ticket, player) {
   const E = etas(S, now);
   const rating = pid => (S.players[pid] || {}).rating || RULES.startRating;
-  const seatPub = (s, t, side) => s ? { name: s.name, rating: rating(s.pid), present: !!s.present, real: !!s.real, ticket: s.ticket ? s.ticket : null, checkinLeft: !s.present && s.calledAt ? Math.max(0, Math.round(((s.real ? RULES.checkinSec : RULES.simCheckinSec) * 1000 - (now - s.calledAt)) / 1000)) : null, streak: side === 'champ' ? t.streak : 0 } : null;
+  const seatPub = (s, t, side) => s ? { name: s.name, rating: rating(s.pid), present: !!s.present, real: !!s.real, ticket: s.ticket ? s.ticket : null, checkinLeft: !s.present && s.calledAt ? Math.max(0, Math.round((checkinMs(s) - (now - s.calledAt)) / 1000)) : null, streak: side === 'champ' ? t.streak : 0 } : null;
   const tables = S.tables.map(t => {
     const g = t.game;
     let status = 'empty';
@@ -1074,7 +1078,7 @@ function publicState(S, now, ticket, player) {
     return pub;
   });
   const waiting = S.queue.filter(q => q.status === 'waiting' || q.status === 'called');
-  const queue = waiting.map(q => ({ ticket: q.ticket, name: q.name, gameType: q.gameType, refOnly: q.refOnly, status: q.status, table: q.table ? (S.tables.find(t => t.id === q.table) || {}).name : null, eta: E[q.ticket] || null, position: q.status === 'waiting' ? S.queue.filter(x => x.status === 'waiting').indexOf(q) + 1 : 0 }));
+  const queue = waiting.map(q => ({ ticket: q.ticket, name: displayName(q), gameType: q.gameType, refOnly: q.refOnly, status: q.status, table: q.table ? (S.tables.find(t => t.id === q.table) || {}).name : null, eta: E[q.ticket] || null, position: q.status === 'waiting' ? S.queue.filter(x => x.status === 'waiting').indexOf(q) + 1 : 0 }));
   // Leaderboard with shot stats and badges: sharpshooter (best average shot, 5+ shots), fair play (fewest fouls per shot, 5+ shots), best shot (85+).
   const leaderboard = Object.entries(S.players).map(([pid, p]) => ({ pid, name: p.name, rating: p.rating, w: p.w, l: p.l, matches: (p.w || 0) + (p.l || 0), winRate: (p.w || 0) + (p.l || 0) ? Math.round(100 * (p.w || 0) / ((p.w || 0) + (p.l || 0))) : null, shots: p.shots || 0, avgShot: p.shots ? Math.round(p.scoreSum / p.shots) : null, fouls: p.fouls || 0, best: p.best || 0, badges: [] }));
   const top = (f, ok) => leaderboard.filter(ok).sort((a, b) => f(b) - f(a))[0];
@@ -1086,11 +1090,11 @@ function publicState(S, now, ticket, player) {
   const my = mi < 0 ? null : Object.assign({}, leaderboard[mi], { rank: mi + 1, of: leaderboard.length,
     games: S.history.filter(h => h.winner.toLowerCase() === pname || h.loser.toLowerCase() === pname).slice(0, 8).map(h => ({ at: h.at, table: h.table, won: h.winner.toLowerCase() === pname, opponent: h.winner.toLowerCase() === pname ? h.loser : h.winner, rated: h.rated, delta: h.delta })) });
   leaderboard.length = Math.min(leaderboard.length, 10);
-  const out = { ok: true, now, venue: S.venue, rules: { maxWins: RULES.maxWins, checkinSec: RULES.checkinSec }, tables, queue, leaderboard, recent: S.history.slice(0, 6), feed: S.feed.slice(-14).reverse(), events: publicEvents(S, now), directory: S.directory || [], my };
+  const out = { ok: true, now, venue: S.venue, rules: { maxWins: RULES.maxWins, checkinSec: RULES.checkinSec }, tables, queue, help: (S.help || []).map(h => ({ name: h.name, table: h.table || null, minutes: Math.max(0, Math.floor((now - h.at) / MIN)), ticket: h.ticket })), leaderboard, recent: S.history.slice(0, 6), feed: S.feed.slice(-14).reverse(), events: publicEvents(S, now), directory: S.directory || [], my };
   const q = ticket ? findTicket(S, ticket) : null;
   if (q) {
     const t = tableOf(S, q), side = sideOf(t, q);
-    out.me = { ticket: q.ticket, name: q.name, pid: q.pid, emailOn: !!q.email, gameType: q.gameType, refOnly: q.refOnly, status: q.status, rating: rating(q.pid), position: q.status === 'waiting' ? S.queue.filter(x => x.status === 'waiting').indexOf(q) + 1 : 0, eta: E[q.ticket] || null, table: t ? t.id : null, side, result: q.result || null, texts: S.outbox.filter(n => n.ticket === q.ticket).slice(-4).reverse().map(n => ({ at: n.at, text: n.text })) };
+    out.me = { ticket: q.ticket, name: q.name, pid: q.pid, emailOn: !!q.email, gameType: q.gameType, refOnly: q.refOnly, status: q.status, helpOpen: (S.help || []).some(h => h.ticket === q.ticket), rating: rating(q.pid), position: q.status === 'waiting' ? S.queue.filter(x => x.status === 'waiting').indexOf(q) + 1 : 0, eta: E[q.ticket] || null, table: t ? t.id : null, side, result: q.result || null, texts: S.outbox.filter(n => n.ticket === q.ticket).slice(-4).reverse().map(n => ({ at: n.at, text: n.text })) };
   }
   return out;
 }
@@ -1129,7 +1133,7 @@ function doUndo(S, t, now) {
   return true;
 }
 function sideByName(t, name) { const n = String(name || '').trim().toLowerCase(); return ['champ', 'challenger'].find(sd => t[sd] && t[sd].name.toLowerCase() === n) || null; }
-const STAFF_ACTIONS = ['start_match', 'switch_turn', 'foul', 'set_group', 'end_match', 'next_match', 'undo', 'reset_table'];
+const STAFF_ACTIONS = ['start_match', 'switch_turn', 'foul', 'set_group', 'end_match', 'next_match', 'undo', 'reset_table', 'help_done', 'add_time'];
 
 // ---- Bar profile and events (the "Bar setup" screen) ----
 // The profile lives in S.venue, so the bar's name shows on every screen and in the emails. Older saved states
@@ -1238,6 +1242,7 @@ function handleOn(S, action, p, realNow) {
   if (p.base) S.base = String(p.base).slice(0, 200);
   if (!S.venue || !S.venue.hours) S.venue = venueProfile(S.venue, S.tables.length);   // saved before bar profiles existed
   if (!Array.isArray(S.events)) S.events = [];
+  if (!Array.isArray(S.help)) S.help = [];
   if (!S.accounts || typeof S.accounts !== 'object') S.accounts = {};
   if (p.k != null && p.k !== '') { const kq = p.ticket ? findTicket(S, p.ticket) : null; if (!kq || !kq.key || kq.key !== String(p.k)) return fail('This link doesn\'t match a ticket.', 403); }
   if (p.cams) {                                          // a camera page says which tables it is watching (before settle, so a game starting now is refereed)
@@ -1254,6 +1259,8 @@ function handleOn(S, action, p, realNow) {
     case 'join': {
       const name = String(p.name || '').trim().slice(0, 24);
       if (!name) return fail('Please enter your name.');
+      const partner = String(p.partner || '').trim().slice(0, 24);
+      if (partner && partner.toLowerCase() === name.toLowerCase()) return fail('Your partner\'s name must be different from yours.');
       const gameType = RULES.games.includes(p.gameType) ? p.gameType : '8-ball';
       const refOnly = (p.refOnly === true || p.refOnly === 'true' || p.refOnly === '1') && gameType === '8-ball';
       const em = String(p.email || '').trim().slice(0, 80);
@@ -1274,9 +1281,10 @@ function handleOn(S, action, p, realNow) {
       if (!pid) { pid = 'p_' + name.toLowerCase().replace(/[^a-z0-9]+/g, '') + '_' + (S.seq + 1); S.players[pid] = { name, rating: RULES.startRating, w: 0, l: 0 }; }
       const ticket = 'A' + (++S.seq);
       const key = Math.random().toString(36).slice(2, 10);
-      S.queue.push({ ticket, pid, name, email, key, gameType, refOnly, real: true, status: 'waiting', joinedAt: now() });
+      // A partner is display-only: ratings, wins and accounts stay with the ticket holder.
+      S.queue.push({ ticket, pid, name, partner, email, key, gameType, refOnly, real: true, status: 'waiting', joinedAt: now() });
       p.ticket = ticket;
-      log(S, now(), 'queue', name + ' joined the queue (' + gameType + (refOnly ? ', camera table only' : '') + ')');
+      log(S, now(), 'queue', displayName({ name, partner }) + ' joined the queue (' + gameType + (refOnly ? ', camera table only' : '') + ')');
       text(S, now(), ticket, 'You\'re on the board at ' + S.venue.name + ' with ticket ' + ticket + '. ' + (email ? 'We\'ll email you when your table is ready.' : 'Keep this page open: it tells you when your table is ready.'), notes, { subject: 'You\'re on the board: ticket ' + ticket });
       settle(S, now(), notes);
       break;
@@ -1286,6 +1294,21 @@ function handleOn(S, action, p, realNow) {
       if (!q || q.status !== 'called' || !side) return fail('You haven\'t been called to a table yet.');
       t[side].present = true; log(S, now(), 'queue', q.name + ' checked in at ' + t.name);
       settle(S, now(), notes);
+      break;
+    }
+    case 'help': {
+      if (!q || !['waiting', 'called', 'playing'].includes(q.status)) return fail('You can call staff while you are waiting or playing.');
+      if (!S.help.some(h => h.ticket === q.ticket)) {
+        const t = tableOf(S, q);
+        S.help.push({ ticket: q.ticket, name: displayName(q), table: t ? t.name : null, at: now() });
+        log(S, now(), 'staff', displayName(q) + ' called staff' + (t ? ' to ' + t.name : ''));
+      }
+      break;
+    }
+    case 'help_done': {
+      const h = S.help.find(x => x.ticket === p.ticket);
+      S.help = S.help.filter(x => x.ticket !== p.ticket);
+      if (h) log(S, now(), 'staff', 'Staff finished helping ' + h.name);
       break;
     }
     case 'leave': {
@@ -1401,6 +1424,15 @@ function handleOn(S, action, p, realNow) {
       const t = S.tables.find(x => x.id === String(p.table || 'T1').toUpperCase());
       if (!t) return fail('Unknown table.');
       const g = t.game, live = g && g.mode === 'camera' && g.status === 'live';
+      if (action === 'add_time') {
+        if (!['champ', 'challenger'].includes(p.side)) return fail('Pick the champ or challenger seat.');
+        const s = t[p.side], q = s && s.ticket ? findTicket(S, s.ticket) : null;
+        if (!s || s.present || !s.calledAt || !q || q.status !== 'called') return fail('That seat is not waiting to check in.');
+        if ((s.checkinExtra || 0) >= 4 * MIN) return fail('Extra check-in time has already been added 2 times for this call.');
+        s.checkinExtra = (s.checkinExtra || 0) + 2 * MIN;
+        log(S, now(), 'queue', 'Staff added 2 minutes for ' + s.name + ' to check in at ' + t.name);
+        break;
+      }
       if (action === 'undo') { if (!doUndo(S, t, now())) return fail('Nothing to undo on ' + t.name + '.'); break; }
       if (action === 'start_match') {
         const names = String(p.players || '').split(',').map(x => x.trim()).filter(Boolean);
@@ -1413,7 +1445,7 @@ function handleOn(S, action, p, realNow) {
         const seatFor = (name, side) => {
           const pid = findPid(S, name, true), qq = S.queue.find(x => x.pid === pid && ['waiting', 'called'].includes(x.status));
           if (qq) { qq.status = 'playing'; qq.table = t.id; qq.seat = side; }
-          return { pid, name: S.players[pid].name, ticket: qq ? qq.ticket : null, real: !!qq, staff: !qq, present: true };
+          return { pid, name: qq ? displayName(qq) : S.players[pid].name, ticket: qq ? qq.ticket : null, real: !!qq, staff: !qq, present: true };
         };
         t.game = null; t.streak = 0; t.frameAt = null; t.practice = null;
         t.challenger = seatFor(names[0], 'challenger'); t.champ = seatFor(names[1], 'champ'); t.breaker = 'challenger';   // the first name breaks
@@ -1717,7 +1749,7 @@ addStrings({
   'board.titleN': '{title} · {n}', 'board.calledAt': '{table} · {time}',
   'chip.free': 'Free', 'chip.playing': '{n} min', 'chip.started': 'Just started', 'chip.checkin': '{name} · {time}',
   'chip.needs': 'Needs a challenger', 'chip.review': 'Foul check', 'chip.staff': 'Needs you', 'chip.confirm': 'Confirming', 'chip.called': 'Called',
-  'card.manageShort': 'Manage', 'card.startShort': 'New game',
+  'card.manageShort': 'Manage', 'card.startShort': 'New game', 'card.addTime': '+2 min', 'card.addTimeFor': 'Give {name} 2 more minutes to check in',
   'game.8-ball': '8-ball', 'game.9-ball': '9-ball', 'game.10-ball': '10-ball', 'group.solids': 'solids', 'group.stripes': 'stripes',
   'day.mon': 'Monday', 'day.tue': 'Tuesday', 'day.wed': 'Wednesday', 'day.thu': 'Thursday', 'day.fri': 'Friday', 'day.sat': 'Saturday', 'day.sun': 'Sunday',
   'kind.tournament': 'Tournament', 'kind.league': 'League night', 'kind.social': 'Social night', 'kind.lesson': 'Lesson or coaching',
@@ -1768,7 +1800,9 @@ addStrings({
   'result.playNext': 'Play {name} next', 'result.keep': 'Keep the table', 'result.stop': 'Stop playing', 'result.again': 'Join the queue again', 'result.done': 'I\'m done for tonight',
   'missed.title': 'You missed your turn', 'missed.more': 'The {n} minutes ran out, so the next person was called.',
   'photo.alt': 'Photo of {table} after the last shot', 'photo.cap': 'Photo after the last shot',
-  'ask.open': 'Ask the referee', 'ask.title': 'Ask the referee', 'ask.more': 'An AI that knows the house rules and tonight\'s board.', 'ask.ph': 'Is it a foul if I scratch on the 8?',
+  'ask.open': 'Ask the referee', 'help.call': 'Call staff', 'help.open': 'Staff are on the way', 'help.done': 'Done',
+  'help.need': '{name} needs help', 'help.waiting': 'In the queue · {n} min ago', 'help.waiting_1': 'In the queue · 1 min ago',
+  'help.atTable': '{table} · {n} min ago', 'help.atTable_1': '{table} · 1 min ago', 'ask.title': 'Ask the referee', 'ask.more': 'An AI that knows the house rules and tonight\'s board.', 'ask.ph': 'Is it a foul if I scratch on the 8?',
   'ask.label': 'Your question', 'ask.send': 'Ask', 'ask.thinking': 'Thinking…', 'ask.none': 'No answer this time. Try again.', 'ask.down': 'The referee can\'t be reached right now.',
   'ask.sample': 'The AI referee isn\'t part of this sample bar. In a real bar it answers here.',
   'leave.q': 'Leave the queue?', 'leave.text': 'You lose your place in line.', 'leave.yes': 'Leave the queue', 'leave.no': 'Stay',
@@ -1824,6 +1858,7 @@ addStrings({
   'p.noEvents': 'No events posted yet.', 'p.about': 'About the bar', 'p.directions': 'Directions', 'p.call': 'Call', 'p.website': 'Website', 'p.openingHours': 'Opening hours',
   'p.didFav': 'Added to your favourites.', 'p.didUnfav': 'Removed from your favourites.', 'p.didStop': 'You gave up the table. Thanks for playing.',
   'join.as': 'Joining as {name}', 'join.name': 'Your name', 'join.namePh': 'First name or nickname', 'join.nameMore': 'Shown on the board in the bar.',
+  'join.partner': 'Playing doubles? Partner\'s name',
   'join.emailMore': 'We email you when your table is ready. Without it, keep this page open.', 'join.game': 'Game', 'join.camOnly': 'Camera table only',
   'join.camOnlyMore': 'The camera calls fouls and the game counts for your rating. The wait can be longer.', 'join.camOnly9': 'The camera referee only does 8-ball for now.',
   'join.notNow': 'Not now', 'join.login': 'Played before with a password? Log in',
@@ -2725,7 +2760,7 @@ async function bizAutofill() {
 
 
 // ---------- the bar app ----------
-function needsCount(st) { return st.tables.filter(t => t.status === 'staff').length; }
+function needsCount(st) { return st.tables.filter(t => t.status === 'staff').length + (st.help || []).length; }
 function renderBizApp(st) {
   const v = st.venue || {}, root = $('#v-biz');
   // the night was ended on another device: the camera on this device stops too
@@ -3177,7 +3212,7 @@ async function doJoin(o) {
   if (!P) return;
   if (needsAccount(st)) { PAPP.acct = { then: 'join' }; PAPP.acctJoin = o; PAPP.login = false; PAPP.tab = 'home'; PAPP.sig = {}; render(); window.scrollTo(0, 0); return; }
   S.ticket = null;
-  const r = await act('join', { name: P.name, email: P.email || '', hash: P.hash || undefined, gameType: o.gameType || '8-ball', refOnly: !!o.refOnly && (o.gameType || '8-ball') === '8-ball' }, true);
+  const r = await act('join', { name: P.name, email: P.email || '', hash: P.hash || undefined, partner: o.partner || '', gameType: o.gameType || '8-ball', refOnly: !!o.refOnly && (o.gameType || '8-ball') === '8-ball' }, true);
   if (!r || !r.ok) {
     if (r && r.code === 401) { PAPP.acct = { then: 'join' }; PAPP.acctJoin = o; PAPP.login = true; PAPP.tab = 'home'; PAPP.sig = {}; render(); return; }
     toast((r && r.error) || tr('err.joinNow')); return;
@@ -3187,7 +3222,7 @@ async function doJoin(o) {
   render(); window.scrollTo(0, 0);
 }
 function playerRejoin() { const me = S.state && S.state.me; doJoin({ gameType: (me && me.gameType) || '8-ball', refOnly: !!(me && me.refOnly) }); }
-function joinPick() { if (!PAPP.joinPick) PAPP.joinPick = { gameType: '8-ball', refOnly: false, name: '', email: '' }; return PAPP.joinPick; }
+function joinPick() { if (!PAPP.joinPick) PAPP.joinPick = { gameType: '8-ball', refOnly: false, name: '', email: '', partner: '' }; return PAPP.joinPick; }
 // The Join button: someone new gives a name here (and an email if they want the call by email too).
 async function joinNow(el) {
   const pick = joinPick(), err = $('[data-joinerr]');
@@ -3236,6 +3271,7 @@ function barPageHTML(b, st) {
     : PAPP.joinFor === b.id ? `<form class="joinbox" id="joinForm" novalidate>
         ${P ? `<p class="strong">${trh('join.as', { name: P.name })}</p>` : `<div class="field"><label for="jName">${trh('join.name')}</label><input id="jName" type="text" maxlength="24" value="${esc(pick.name || '')}" placeholder="${trh('join.namePh')}" autocomplete="nickname" enterkeyhint="go" required><small>${trh('join.nameMore')}</small></div>
           <div class="field"><label for="jEmail">${trh('f.email')} <span class="dim">${trh('common.optional')}</span></label><input id="jEmail" type="email" value="${esc(pick.email || '')}" placeholder="you@example.com" autocomplete="email" inputmode="email" enterkeyhint="go"><small>${trh('join.emailMore')}</small></div>`}
+        <div class="field"><label for="jPartner">${trh('join.partner')} <span class="dim">${trh('common.optional')}</span></label><input id="jPartner" type="text" maxlength="24" value="${esc(pick.partner || '')}" autocomplete="off" enterkeyhint="go"></div>
         <div class="seg" role="group" aria-label="${trh('join.game')}"><button type="button" data-act="p-pick" data-v="8-ball" aria-pressed="${!nine}">${ballChip(8)}${esc(gname('8-ball'))}</button><button type="button" data-act="p-pick" data-v="9-ball" aria-pressed="${nine}">${ballChip(9)}${esc(gname('9-ball'))}</button></div>
         <label class="switch" for="jRef2"><span><b>${ICON.camera}${trh('join.camOnly')}</b><small>${trh(nine ? 'join.camOnly9' : 'join.camOnlyMore')}</small></span><span class="knob"><input id="jRef2" type="checkbox" ${pick.refOnly && !nine ? 'checked' : ''} ${nine ? 'disabled' : ''} data-act="p-pickref"><i></i></span></label>
         <p class="formerr" role="alert" data-joinerr></p>
@@ -3389,6 +3425,7 @@ function handleScan(text) {
 document.addEventListener('input', e => {            // what is typed in the Join box is kept while the page redraws around it
   if (e.target.id === 'jName') joinPick().name = e.target.value;
   else if (e.target.id === 'jEmail') joinPick().email = e.target.value;
+  else if (e.target.id === 'jPartner') joinPick().partner = e.target.value;
 });
 document.addEventListener('submit', e => {
   if (e.target.id !== 'joinForm') return;
@@ -3841,6 +3878,7 @@ function renderPhone(el, st, key) {
   if (scr === 'review') { const v = mount(el, 'review@' + key); if (v) v.replay(g.id + ':' + g.review.shotNo + ':' + g.review.source, g.review.replay); }
 }
 const askBtn = () => `<button class="quiet" data-act="ask">${ICON.ask}${trh('ask.open')}</button>`;
+const helpControl = (me, cls = '') => me.helpOpen ? `<p class="lede" data-help-open>${trh('help.open')}</p>` : `<button class="quiet${cls}" data-act="help">${ICON.call}${trh('help.call')}</button>`;
 // otherSide(side) comes from the rules engine (shared/engine.js)
 const PHONE = {
   // Waiting: the ticket says your place and the wait; one line says what happens next.
@@ -3859,7 +3897,7 @@ const PHONE = {
         <button class="quiet" data-act="p-invite">${ICON.invite}<span>${trh('me.invite')}</span></button>
         <button class="quiet" data-act="ask">${ICON.ask}<span>${trh('ask.open')}</span></button></div>
       ${boardHTML(st, { gameType: me.gameType, title: tr('board.titleGame', { game: gname(me.gameType) }) })}
-      <div class="push"><button class="quiet queue-leave" data-act="leave">${ICON.leave}${trh('queue.leave')}</button></div>`;
+      <div class="push"><div class="two">${helpControl(me, ' queue-leave')}<button class="quiet queue-leave" data-act="leave">${ICON.leave}${trh('queue.leave')}</button></div></div>`;
   },
   // Called: the table, the time left and the one button, together.
   called(st, me, t) {
@@ -3871,7 +3909,7 @@ const PHONE = {
         <button class="cta" data-act="checkin">${trh('called.here', { table: tname(t) })}</button></div>
       ${floorHTML(st)}
       <div class="stack tight"><p class="strong">${vs}</p><p class="lede">${trh('called.rule')}</p></div>
-      <div class="push"><button class="quiet" data-act="leave">${ICON.leave}${trh('called.cant')}</button></div>`;
+      <div class="push">${helpControl(me)}<button class="quiet" data-act="leave">${ICON.leave}${trh('called.cant')}</button></div>`;
   },
   seated(st, me, t) {
     const other = t[otherSide(me.side)], cam = t.ref || t.camera;
@@ -3881,7 +3919,7 @@ const PHONE = {
       <div class="stack"><h1 class="h1">${esc(h)}</h1><p class="lede seated-wait">${p}</p></div>
       ${me.side === 'champ' && t.streak ? `<div class="hold"><b>${trh('seated.run', { table: tname(t) })}</b>${tally(t.streak, st.rules.maxWins)}</div>` : ''}
       ${boardHTML(st, { gameType: t.gameType, skipMe: true, title: tr('board.titleGame', { game: gname(t.gameType) }) })}
-      <div class="push">${askBtn()}${me.side === 'champ' && !other ? `<button class="quiet" data-act="leave">${trh('seated.giveUp')}</button>` : ''}</div>`;
+      <div class="push">${helpControl(me)}${askBtn()}${me.side === 'champ' && !other ? `<button class="quiet" data-act="leave">${trh('seated.giveUp')}</button>` : ''}</div>`;
   },
   // Camera game: whose shot it is comes first.
   live(st, me, t, g) {
@@ -3897,6 +3935,7 @@ const PHONE = {
       ${last && last.ai ? `<p class="ailine"><b>${trh('live.ref')}</b>${esc(last.ai)}</p>` : ''}
       ${last && last.tip ? `<div class="tiprow">${scoreChip(last)}<p class="tipline">${trh('live.tip', { tip: last.tip })}</p></div>` : ''}
       <div class="two"><button class="quiet" data-act="flag" ${!last || last.flagged || last.cleared ? 'disabled' : ''}>${ICON.flag}${trh('live.flag')}</button>${askBtn()}</div>
+      ${helpControl(me)}
       ${g.shots.length > 1 ? `<ol class="log" reversed>${g.shots.slice(-4, -1).reverse().map(s => `<li><span class="n">${s.no}</span><span>${shotLine(s)}</span></li>`).join('')}</ol>` : ''}`;
   },
   // A possible foul: the question, what to look at, the two answers, what each answer does.
@@ -3926,7 +3965,8 @@ const PHONE = {
       ${look}
       <div class="two">${voteBox(me.side)}${voteBox(os)}</div>
       ${conf != null ? `<div class="stack"><p>${trh('review.sure', { n: conf })}</p><div class="meter"><i style="width:${conf}%"></i><b style="left:${sure}%"></b></div><p class="lede">${trh('review.sureMore', { n: sure })}</p></div>` : ''}
-      ${askBtn()}`;
+      ${askBtn()}
+      ${helpControl(me)}`;
   },
   confirm(st, me, t, g) {
     const iWon = g.winner === me.side, os = otherSide(me.side);
@@ -3934,14 +3974,16 @@ const PHONE = {
     return `<p class="label">${trh('confirm.over', { table: tname(t) })}</p>
       <div class="won stack"><span class="big">${iWon ? trh('result.won') : trh('confirm.wins', { name: t[g.winner].name })}</span>${g.winReason ? `<span class="lede">${esc(g.winReason)}</span>` : ''}</div>
       ${g.confirm[me.side] ? `<p class="strong">${trh('confirm.waiting')}</p>` : `<div class="stack"><p class="lede">${trh('confirm.why')}</p><button class="cta" data-act="confirm">${trh('confirm.do')}</button></div>`}
-      <div class="two">${c(me.side)}${c(os)}</div>`;
+      <div class="two">${c(me.side)}${c(os)}</div>
+      ${helpControl(me)}`;
   },
   manual(st, me, t) {
     const opp = t[otherSide(me.side)];
     return `<p class="label">${esc(tname(t) + ' · ' + gname(t.gameType))}</p>
       <div class="stack"><h1 class="h1">${trh('manual.title', { name: opp.name })}</h1><p class="lede">${trh('manual.more')}</p></div>
       <div class="two"><button class="cta" data-act="report" data-v="won">${trh('manual.won')}</button><button class="cta line" data-act="report" data-v="lost">${trh('manual.lost')}</button></div>
-      ${askBtn()}`;
+      ${askBtn()}
+      ${helpControl(me)}`;
   },
   // The result: what happened, what it did to your rating, what you can do next.
   result(st, me, t) {
@@ -4061,6 +4103,7 @@ function tableCard(st, t, nWaiting) {
   const chip = late ? `<span class="checkin-chip">${ringHTML(liveLeft(late.checkinLeft), st.rules.checkinSec, 'sm')}${statusChip(kind, state)}</span>` : statusChip(late ? kind : a && b && !g && ![a, b].some(s => !s.present) ? 'done' : kind, state);
   const whoLine = a && b ? `${esc(a.name)} <span class="dim">${trh('common.vs')}</span> ${esc(b.name)}` : a ? esc(a.name) : `<span class="free-name">${trh('chip.free')}</span>`;
   const meta = [gname(t.gameType), t.ref || t.camera ? tr('card.camera') : '', g && g.mode === 'camera' && g.shots.length ? tr('live.shotN', { n: g.shots.length }) : ''].filter(Boolean).join(' · ');
+  const addTime = !g ? [['champ', a], ['challenger', b]].filter(([, s]) => s && !s.present && s.checkinLeft != null).map(([side, s]) => `<button class="b" data-act="add_time" data-t="${t.id}" data-side="${side}" aria-label="${trh('card.addTimeFor', { name: s.name })}">${ICON.timer}${trh('card.addTime')}</button>`).join('') : '';
   let primary = '', secondary = '';
   if (g) primary = `<button class="b" data-act="tb-fix" data-t="${t.id}">${ICON.fix}${trh('card.fix')}</button>`;
   else if (a && b) primary = `<button class="b" data-act="tb-fix" data-t="${t.id}">${ICON.fix}${trh('card.manage')}</button>`;
@@ -4071,16 +4114,16 @@ function tableCard(st, t, nWaiting) {
     else if (nWaiting) secondary = `<button class="b" data-act="biz-start" data-t="${t.id}">${ICON.start}${trh('card.startShort')}</button>`;
   }
   return `<div class="tcard k-${cls}${kind === 'staff' ? ' staff' : ''}"><div class="hd tcard-head"><span class="sign">${esc(tname(t))}</span>${chip}</div>
-    <div class="tcard-names"><span class="who">${whoLine}</span></div><span class="meta">${esc(meta)}</span><div class="acts">${primary}${secondary}</div></div>`;
+    <div class="tcard-names"><span class="who">${whoLine}</span></div><span class="meta">${esc(meta)}</span><div class="acts">${primary}${secondary}${addTime}</div></div>`;
 }
 function renderBarHome(root, st, cams) {
   const v = st.venue, home = $('[data-bs="home"]', root), waiting = st.queue.filter(q => q.status === 'waiting');
-  const sig = JSON.stringify([v.open, v.eventId, cams, st.tables.map(t => [t.status, t.streak, t.canUndo, t.camLive, t.champ && [t.champ.name, t.champ.present, liveLeft(t.champ.checkinLeft)], t.challenger && [t.challenger.name, t.challenger.present, liveLeft(t.challenger.checkinLeft)], t.game && [t.game.minutes, t.game.status, t.game.mode, t.game.turn, t.game.ballInHand, t.game.shots && t.game.shots.length, t.game.review && [t.game.review.staff, t.game.review.shotNo]]]), st.queue, st.recent.slice(0, 5).map(r => r.at), st.feed.slice(0, 8).map(f => f.at + f.text), S.qr ? 1 : 0]);
+  const sig = JSON.stringify([v.open, v.eventId, cams, st.help, st.tables.map(t => [t.status, t.streak, t.canUndo, t.camLive, t.champ && [t.champ.name, t.champ.present, liveLeft(t.champ.checkinLeft)], t.challenger && [t.challenger.name, t.challenger.present, liveLeft(t.challenger.checkinLeft)], t.game && [t.game.minutes, t.game.status, t.game.mode, t.game.turn, t.game.ballInHand, t.game.shots && t.game.shots.length, t.game.review && [t.game.review.staff, t.game.review.shotNo]]]), st.queue, st.recent.slice(0, 5).map(r => r.at), st.feed.slice(0, 8).map(f => f.at + f.text), S.qr ? 1 : 0]);
   renderTableTools(st);
   if (S.sigs.get(home) === sig) return;
   S.sigs.set(home, sig);
-  // 1. what needs staff now: a foul the two players disagree about; a bar that has not started its night
-  const needs = [];
+  // 1. what needs staff now: help calls, a foul the two players disagree about, a bar that has not started its night
+  const needs = (st.help || []).map(h => `<div class="need calm"><p>${trh('help.need', { name: h.name })}<small>${esc(h.table ? tr('help.atTable', { table: tnameOf(st, h.table), n: h.minutes }) : tr('help.waiting', { n: h.minutes }))}</small></p><button class="b" data-act="help_done" data-ticket="${esc(h.ticket)}">${trh('help.done')}</button></div>`);
   st.tables.forEach(t => { const g = t.game, r = g && g.status === 'review' && g.review; if (r && r.staff) needs.push(`<div class="need"><p>${trh('need.foul', { table: tname(t), a: t.champ.name, b: t.challenger.name, n: r.shotNo })}<small>${esc(reviewWho(t, r))}</small></p><div class="bact"><button class="b big danger fill" data-act="staff" data-t="${t.id}" data-v="uphold">${esc(reviewDecision(t, r, 'uphold'))}</button><button class="b big" data-act="staff" data-t="${t.id}" data-v="overrule">${esc(reviewDecision(t, r, 'overrule'))}</button></div></div>`); });
   if (!v.open) needs.push(`<div class="need calm"><p>${trh('need.closed')}<small>${trh('need.closedMore')}</small></p><button class="b go big" data-act="biz-open">${trh('bar.open')}</button></div>`);
   $('[data-bneeds]', home).innerHTML = needs.join('');
@@ -4186,6 +4229,9 @@ document.addEventListener('click', async e => {
   }
   else if (x === 'watch') { S.watchOpen = !S.watchOpen; S.sigs.clear(); render(); }
   else if (x === 'checkin') act('checkin');
+  else if (x === 'help') act('help');
+  else if (x === 'help_done') act('help_done', { ticket: a.dataset.ticket });
+  else if (x === 'add_time') act('add_time', { table: a.dataset.t, side: a.dataset.side });
   else if (x === 'flag') act('flag');
   else if (x === 'vote') act('vote', { vote: a.dataset.v });
   else if (x === 'confirm') act('confirm');
